@@ -1,5 +1,6 @@
 package com.smartworkflow.backend.service;
 
+import com.smartworkflow.backend.dto.PerformanceResponse;
 import com.smartworkflow.backend.entity.TaskStatus;
 import com.smartworkflow.backend.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +12,19 @@ public class PerformanceService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public double calculatePerformance(Long employeeId) {
+    public PerformanceResponse getPerformanceReport(Long employeeId) {
 
         long totalTasks = taskRepository.countByAssignedEmployeeId(employeeId);
 
         long completedTasks = taskRepository
                 .countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.COMPLETED);
 
-        if (totalTasks == 0) return 0;
+        long pendingTasks = totalTasks - completedTasks;
 
-        return ((double) completedTasks / totalTasks) * 100;
+        double percentage = totalTasks == 0 ? 0 :
+                ((double) completedTasks / totalTasks) * 100;
+
+        return new PerformanceResponse(totalTasks, completedTasks,
+                pendingTasks, percentage);
     }
 }
