@@ -8,6 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.smartworkflow.backend.dto.UserRequest;
 import com.smartworkflow.backend.entity.Role;
 import com.smartworkflow.backend.repository.RoleRepository;
+import com.smartworkflow.backend.dto.LoginRequest;
+import com.smartworkflow.backend.dto.LoginResponse;
+import com.smartworkflow.backend.config.JwtUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -20,6 +24,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -41,6 +47,19 @@ public class UserService {
         user.setRole(role);
 
         return userRepository.save(user);
+    }
+    public LoginResponse login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new LoginResponse(token);
     }
 
 }
