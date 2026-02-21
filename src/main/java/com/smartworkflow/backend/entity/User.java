@@ -1,7 +1,7 @@
 package com.smartworkflow.backend.entity;
 
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "users")
 public class User {
@@ -15,7 +15,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     private String password;
+
 
     @ManyToOne
     @JoinColumn(name = "role_id")

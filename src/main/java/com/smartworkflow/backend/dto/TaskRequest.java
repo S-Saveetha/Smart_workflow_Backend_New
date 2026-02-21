@@ -8,7 +8,7 @@ public class TaskRequest {
     private String description;
     private LocalDate deadline;
     private Long assignedEmployeeId;
-    private Long managerId;
+
 
     // getters and setters
     public String getTitle() { return title; }
@@ -23,6 +23,4 @@ public class TaskRequest {
     public Long getAssignedEmployeeId() { return assignedEmployeeId; }
     public void setAssignedEmployeeId(Long assignedEmployeeId) { this.assignedEmployeeId = assignedEmployeeId; }
 
-    public Long getManagerId() { return managerId; }
-    public void setManagerId(Long managerId) { this.managerId = managerId; }
 }

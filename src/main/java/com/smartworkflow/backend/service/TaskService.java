@@ -8,7 +8,8 @@ import com.smartworkflow.backend.dto.TaskRequest;
 import com.smartworkflow.backend.entity.User;
 import com.smartworkflow.backend.entity.TaskStatus;
 import com.smartworkflow.backend.repository.UserRepository;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 
 @Service
@@ -26,13 +27,29 @@ public class TaskService {
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
+
+
     public Task createTask(TaskRequest request) {
+
+        // Get logged-in user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        // ✅ Ensure only MANAGER can create tasks
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only MANAGER can create tasks");
+        }
 
         User employee = userRepository.findById(request.getAssignedEmployeeId())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        User manager = userRepository.findById(request.getManagerId())
-                .orElseThrow(() -> new RuntimeException("Manager not found"));
+        // ✅ Ensure task is assigned only to EMPLOYEE
+        if (!employee.getRole().getName().equals("ROLE_EMPLOYEE")) {
+            throw new RuntimeException("Task can only be assigned to an EMPLOYEE");
+        }
 
         Task task = new Task();
         task.setTitle(request.getTitle());
