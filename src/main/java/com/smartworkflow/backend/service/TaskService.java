@@ -17,28 +17,22 @@ public class TaskService {
 
     @Autowired
     private TaskRepository taskRepository;
+
     @Autowired
     private UserRepository userRepository;
-
-    public Task saveTask(Task task) {
-        return taskRepository.save(task);
-    }
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-
     public Task createTask(TaskRequest request) {
 
-        // Get logged-in user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
         User manager = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Manager not found"));
 
-        // ✅ Ensure only MANAGER can create tasks
         if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
             throw new RuntimeException("Only MANAGER can create tasks");
         }
@@ -46,9 +40,8 @@ public class TaskService {
         User employee = userRepository.findById(request.getAssignedEmployeeId())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        // ✅ Ensure task is assigned only to EMPLOYEE
         if (!employee.getRole().getName().equals("ROLE_EMPLOYEE")) {
-            throw new RuntimeException("Task can only be assigned to an EMPLOYEE");
+            throw new RuntimeException("Task can only be assigned to EMPLOYEE");
         }
 
         Task task = new Task();
@@ -61,14 +54,75 @@ public class TaskService {
 
         return taskRepository.save(task);
     }
-    public Task updateTaskStatus(Long taskId, TaskStatus status) {
+
+    public Task updateTaskStatus(Long taskId, TaskStatus newStatus) {
 
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        task.setStatus(status);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String role = user.getRole().getName();
+
+        // EMPLOYEE LOGIC
+        if (role.equals("ROLE_EMPLOYEE")) {
+
+            if (!task.getAssignedEmployee().getId().equals(user.getId())) {
+                throw new RuntimeException("You can only update your own tasks");
+            }
+
+            if (newStatus == TaskStatus.IN_PROGRESS &&
+                    task.getStatus() == TaskStatus.PENDING) {
+                task.setStatus(newStatus);
+            }
+            else if (newStatus == TaskStatus.SUBMITTED &&
+                    task.getStatus() == TaskStatus.IN_PROGRESS) {
+                task.setStatus(newStatus);
+            }
+            else {
+                throw new RuntimeException("Invalid status transition for EMPLOYEE");
+            }
+        }
+
+        // MANAGER LOGIC
+        else if (role.equals("ROLE_MANAGER")) {
+
+            if (newStatus == TaskStatus.APPROVED &&
+                    task.getStatus() == TaskStatus.SUBMITTED) {
+                task.setStatus(newStatus);
+            }
+            else if (newStatus == TaskStatus.REJECTED &&
+                    task.getStatus() == TaskStatus.SUBMITTED) {
+                task.setStatus(newStatus);
+            }
+            else {
+                throw new RuntimeException("Invalid status transition for MANAGER");
+            }
+        }
+
+        else {
+            throw new RuntimeException("Unauthorized role");
+        }
 
         return taskRepository.save(task);
     }
 
+    public List<Task> getTasksForLoggedInEmployee() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User employee = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!employee.getRole().getName().equals("ROLE_EMPLOYEE")) {
+            throw new RuntimeException("Only EMPLOYEE can view their tasks");
+        }
+
+        return taskRepository.findByAssignedEmployeeId(employee.getId());
+    }
 }

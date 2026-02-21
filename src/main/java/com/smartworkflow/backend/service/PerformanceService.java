@@ -17,7 +17,7 @@ public class PerformanceService {
         long totalTasks = taskRepository.countByAssignedEmployeeId(employeeId);
 
         long completedTasks = taskRepository
-                .countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.COMPLETED);
+                .countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.APPROVED);
 
         long pendingTasks = totalTasks - completedTasks;
 
