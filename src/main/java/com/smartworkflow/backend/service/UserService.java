@@ -11,7 +11,7 @@ import com.smartworkflow.backend.repository.RoleRepository;
 import com.smartworkflow.backend.dto.LoginRequest;
 import com.smartworkflow.backend.dto.LoginResponse;
 import com.smartworkflow.backend.config.JwtUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import java.util.List;
 
@@ -59,7 +59,11 @@ public class UserService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponse(token);
+        return new LoginResponse(
+                token,
+                user.getEmail(),
+                user.getRole().getName()
+        );
     }
 
 }
