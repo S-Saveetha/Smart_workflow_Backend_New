@@ -1,41 +1,45 @@
 package com.smartworkflow.backend.controller;
 
-import com.smartworkflow.backend.entity.User;
-import com.smartworkflow.backend.service.UserService;
-import com.smartworkflow.backend.dto.UserRequest;
 import com.smartworkflow.backend.dto.LoginRequest;
 import com.smartworkflow.backend.dto.LoginResponse;
+import com.smartworkflow.backend.dto.UserRequest;
+import com.smartworkflow.backend.entity.User;
+import com.smartworkflow.backend.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    // 🔓 Public login endpoint
-    @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
-        return userService.login(request);
-    }
-
-    // 🔐 Only ADMIN can create users (manager/employee)
-    @PreAuthorize("hasRole('ADMIN')")
+    // ================= REGISTER USER =================
     @PostMapping
-    public User createUser(@RequestBody UserRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<User> createUser(@RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
-    // 🔐 Only ADMIN can view all users
-    @PreAuthorize("hasRole('ADMIN')")
+    // ================= LOGIN =================
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            LoginResponse response = userService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ================= GET ALL USERS =================
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }

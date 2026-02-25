@@ -6,6 +6,15 @@ public class UserRequest {
     private String email;
     private String password;
     private Long roleId;
+    private Long managerId;
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
+    }
 
     // getters and setters
     public String getName() { return name; }

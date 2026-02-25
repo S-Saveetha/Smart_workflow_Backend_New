@@ -22,17 +22,17 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private RoleRepository roleRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    // -------------------------------
-    // CREATE USER
-    // -------------------------------
+    // =====================================================
+    // CREATE USER (Simple - without manager mapping)
+    // =====================================================
     public User createUser(UserRequest request) {
 
         Role role = roleRepository.findById(request.getRoleId())
@@ -43,21 +43,57 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
-        user.setActive(true);   // 🔥 Important: ensure new users are active
+        user.setActive(true);
 
         return userRepository.save(user);
     }
 
-    // -------------------------------
+    // =====================================================
+    // CREATE USER WITH MANAGER MAPPING
+    // =====================================================
+    public User createUserWithManager(UserRequest request) {
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        user.setActive(true);
+
+        // If Employee → assign manager
+        if (role.getName().equals("ROLE_EMPLOYEE")) {
+
+            if (request.getManagerId() == null) {
+                throw new RuntimeException("Employee must have a manager");
+            }
+
+            User manager = userRepository.findById(request.getManagerId())
+                    .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+            // Safety check
+            if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+                throw new RuntimeException("Selected user is not a manager");
+            }
+
+            user.setManager(manager);
+        }
+
+        return userRepository.save(user);
+    }
+
+    // =====================================================
     // GET ALL USERS
-    // -------------------------------
+    // =====================================================
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // -------------------------------
+    // =====================================================
     // LOGIN
-    // -------------------------------
+    // =====================================================
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())

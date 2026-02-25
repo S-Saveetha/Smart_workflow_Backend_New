@@ -11,7 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
@@ -23,16 +23,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+
+                        // PUBLIC ENDPOINTS
                         .requestMatchers("/users/login").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers("/users/create").permitAll() // only if you use it
                         .requestMatchers("/error").permitAll()
+
+                        // EVERYTHING ELSE REQUIRES AUTH
                         .anyRequest().authenticated()
                 )
-
-
-
-
-
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

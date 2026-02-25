@@ -25,4 +25,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByCreatedByManager(User manager);
 
     List<Task> findByAssignedEmployee(User employee);
+    List<Task> findTop5ByOrderByIdDesc();
 }

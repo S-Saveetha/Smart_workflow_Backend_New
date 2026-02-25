@@ -23,6 +23,10 @@ public class DashboardService {
     @Autowired
     private UserRepository userRepository;
 
+
+    public List<Task> getRecentTasks() {
+        return taskRepository.findTop5ByOrderByIdDesc();
+    }
     public DashboardResponse getDashboardData() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
