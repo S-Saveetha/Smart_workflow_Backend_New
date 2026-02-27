@@ -18,7 +18,9 @@ public class User {
 
     private String password;
 
-    private boolean isActive = true;
+    // Map to existing DB column "isActive"
+    @Column(name = "isActive", nullable = false)
+    private boolean active = true;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -46,28 +48,37 @@ public class User {
         this.name = name;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    // IMPORTANT: Getter must be isActive()
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public Role getRole() {
         return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public User getManager() {
@@ -78,19 +89,7 @@ public class User {
         this.manager = manager;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

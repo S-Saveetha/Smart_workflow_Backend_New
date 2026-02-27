@@ -37,12 +37,19 @@ public class DashboardService {
 
         String role = user.getRole().getName();
 
-        long totalTasks;
-        long pending;
-        long inProgress;
-        long submitted;
-        long approved;
-        long rejected;
+        long totalTasks = 0;
+        long pending = 0;
+        long inProgress = 0;
+        long submitted = 0;
+        long approved = 0;
+        long rejected = 0;
+
+        // 👇 Initialize user stats safely
+        long totalUsers = 0;
+        long totalManagers = 0;
+        long totalEmployees = 0;
+        long activeUsers = 0;
+        long inactiveUsers = 0;
 
         if (role.equals("ROLE_MANAGER")) {
 
@@ -73,11 +80,28 @@ public class DashboardService {
             approved = taskRepository.countByStatus(TaskStatus.APPROVED);
             rejected = taskRepository.countByStatus(TaskStatus.REJECTED);
 
+            totalUsers = userRepository.count();
+            totalManagers = userRepository.countByRole_Name("ROLE_MANAGER");
+            totalEmployees = userRepository.countByRole_Name("ROLE_EMPLOYEE");
+            activeUsers = userRepository.countByActive(true);
+            inactiveUsers = userRepository.countByActive(false);
         }
         else {
             throw new RuntimeException("Unauthorized role");
         }
 
-        return new DashboardResponse(totalTasks, pending, inProgress, submitted, approved, rejected);
+        return new DashboardResponse(
+                totalTasks,
+                pending,
+                inProgress,
+                submitted,
+                approved,
+                rejected,
+                totalUsers,
+                totalManagers,
+                totalEmployees,
+                activeUsers,
+                inactiveUsers
+        );
     }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardCards from "../Components/DashboardCards";
 
-function AdminDashboard() {
+function EmployeeDashboard() {
     const [data, setData] = useState(null);
     const token = localStorage.getItem("token");
 
@@ -17,7 +17,7 @@ function AdminDashboard() {
 
     if (!data) return <p>Loading...</p>;
 
-    return <DashboardCards data={data} role="ROLE_ADMIN" />;
+    return <DashboardCards data={data} role="ROLE_EMPLOYEE" />;
 }
 
-export default AdminDashboard;
+export default EmployeeDashboard;

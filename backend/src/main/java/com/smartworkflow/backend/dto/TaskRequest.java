@@ -7,10 +7,9 @@ public class TaskRequest {
     private String title;
     private String description;
     private LocalDate deadline;
+    private String priority;   // 🔥 NEW
     private Long assignedEmployeeId;
 
-
-    // getters and setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
@@ -20,7 +19,11 @@ public class TaskRequest {
     public LocalDate getDeadline() { return deadline; }
     public void setDeadline(LocalDate deadline) { this.deadline = deadline; }
 
-    public Long getAssignedEmployeeId() { return assignedEmployeeId; }
-    public void setAssignedEmployeeId(Long assignedEmployeeId) { this.assignedEmployeeId = assignedEmployeeId; }
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
 
+    public Long getAssignedEmployeeId() { return assignedEmployeeId; }
+    public void setAssignedEmployeeId(Long assignedEmployeeId) {
+        this.assignedEmployeeId = assignedEmployeeId;
+    }
 }

@@ -51,6 +51,15 @@ public class TaskService {
         task.setStatus(TaskStatus.PENDING);
         task.setAssignedEmployee(employee);
         task.setCreatedByManager(manager);
+        try {
+            task.setPriority(
+                    com.smartworkflow.backend.entity.Priority.valueOf(
+                            request.getPriority().toUpperCase()
+                    )
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid priority value");
+        }
 
         return taskRepository.save(task);
     }
@@ -124,5 +133,48 @@ public class TaskService {
         }
 
         return taskRepository.findByAssignedEmployeeId(employee.getId());
+    }
+    public List<Task> getTasksForLoggedInManager() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only MANAGER can view their tasks");
+        }
+
+        return taskRepository.findByCreatedByManager(manager);
+    }
+
+    public Task submitTask(Long taskId, String submissionLink) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User employee = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!employee.getRole().getName().equals("ROLE_EMPLOYEE")) {
+            throw new RuntimeException("Only employee can submit task");
+        }
+
+        if (!task.getAssignedEmployee().getId().equals(employee.getId())) {
+            throw new RuntimeException("Not your task");
+        }
+
+        if (task.getStatus() != TaskStatus.IN_PROGRESS) {
+            throw new RuntimeException("Task must be IN_PROGRESS to submit");
+        }
+
+        task.setSubmissionLink(submissionLink);
+        task.setStatus(TaskStatus.SUBMITTED);
+
+        return taskRepository.save(task);
     }
 }

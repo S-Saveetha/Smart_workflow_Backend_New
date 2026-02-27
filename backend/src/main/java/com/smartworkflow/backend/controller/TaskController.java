@@ -7,7 +7,7 @@ import com.smartworkflow.backend.dto.TaskRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-
+import com.smartworkflow.backend.dto.TaskSubmissionRequest;
 import java.util.List;
 
 @RestController
@@ -17,32 +17,44 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    // ✅ Manager creates task
+
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public Task createTask(@RequestBody TaskRequest request) {
         return taskService.createTask(request);
     }
 
-    // ✅ Manager can view all tasks
+
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @GetMapping
     public List<Task> getAllTasks() {
         return taskService.getAllTasks();
     }
 
-    // ✅ Employee can view only their tasks
+
     @PreAuthorize("hasRole('EMPLOYEE')")
     @GetMapping("/my-tasks")
     public List<Task> getMyTasks() {
         return taskService.getTasksForLoggedInEmployee();
     }
 
-    // ✅ BOTH Employee & Manager can update status
+
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER')")
     @PutMapping("/{taskId}/status")
     public Task updateStatus(@PathVariable Long taskId,
                              @RequestParam TaskStatus status) {
         return taskService.updateTaskStatus(taskId, status);
+    }
+
+    @GetMapping("/manager")
+    public List<Task> getManagerTasks() {
+        return taskService.getTasksForLoggedInManager();
+    }
+
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PutMapping("/{taskId}/submit")
+    public Task submitTask(@PathVariable Long taskId,
+                           @RequestBody TaskSubmissionRequest request) {
+        return taskService.submitTask(taskId, request.getSubmissionLink());
     }
 }

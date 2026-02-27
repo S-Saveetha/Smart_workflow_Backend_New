@@ -1,9 +1,14 @@
-import AdminUsers from "./pages/AdminUsers";
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import ManagerTasks from "./pages/ManagerTasks";
 import Sidebar from "./layout/Sidebar";
-import AdminPerformance from "./pages/AdminPerformance";
+import EmployeeTasks from "./pages/EmployeeTasks";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminPerformance from "./pages/AdminPerformance";
+
+import ManagerDashboard from "./pages/ManagerDashboard";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
 
 function App() {
     const [email, setEmail] = useState("");
@@ -51,29 +56,56 @@ function App() {
     // ================= LOGIN PAGE =================
     if (!isLoggedIn) {
         return (
-            <div className="container d-flex justify-content-center align-items-center vh-100">
-                <div className="card shadow p-4" style={{ width: "400px" }}>
-                    <h3 className="text-center mb-4">Smart Workflow Login</h3>
+            <div className="d-flex vh-100">
 
-                    <input
-                        type="email"
-                        className="form-control mb-3"
-                        placeholder="Enter Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                {/* LEFT SIDE – Branding */}
+                <div
+                    className="d-flex flex-column justify-content-center align-items-center text-white"
+                    style={{
+                        flex: 1,
+                        background: "linear-gradient(135deg, #4e73df, #1cc88a)",
+                    }}
+                >
+                    <h1 className="fw-bold">Smart Workflow</h1>
+                    <p className="mt-3 text-center px-5">
+                        Enterprise Task & Workforce Management System
+                    </p>
+                </div>
 
-                    <input
-                        type="password"
-                        className="form-control mb-3"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                {/* RIGHT SIDE – Login Form */}
+                <div className="d-flex justify-content-center align-items-center bg-light" style={{ flex: 1 }}>
+                    <div className="card shadow-lg p-5" style={{ width: "400px", borderRadius: "20px" }}>
+                        <h3 className="text-center mb-4 fw-bold">Login</h3>
 
-                    <button className="btn btn-primary w-100" onClick={handleLogin}>
-                        Login
-                    </button>
+                        <div className="mb-3">
+                            <label className="form-label fw-semibold">Email</label>
+                            <input
+                                type="email"
+                                className="form-control"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="form-label fw-semibold">Password</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            className="btn btn-primary w-100 fw-semibold"
+                            onClick={handleLogin}
+                        >
+                            Sign In
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -82,11 +114,12 @@ function App() {
     // ================= MAIN LAYOUT =================
     return (
         <div className="d-flex">
-            <Sidebar role={role} />
+            <Sidebar role={role} onLogout={handleLogout} />
 
-            <div className="flex-grow-1 p-4">
-
-
+            <div
+                className="flex-grow-1 p-4"
+                style={{ marginLeft: "250px", transition: "0.3s ease" }}
+            >
                 <Routes>
 
                     {/* ADMIN ROUTES */}
@@ -101,20 +134,22 @@ function App() {
                     {/* MANAGER ROUTES */}
                     {role === "ROLE_MANAGER" && (
                         <>
-                            <Route path="/" element={<h2>Manager Dashboard</h2>} />
-                            <Route path="/manager/tasks" element={<h2>Manager Tasks</h2>} />
+                            <Route path="/" element={<ManagerDashboard />} />
+                            <Route path="/manager/tasks" element={<ManagerTasks />} />
                         </>
                     )}
 
                     {/* EMPLOYEE ROUTES */}
                     {role === "ROLE_EMPLOYEE" && (
                         <>
-                            <Route path="/" element={<h2>Employee Dashboard</h2>} />
-                            <Route path="/employee/tasks" element={<h2>Employee Tasks</h2>} />
+                            <Route path="/" element={<EmployeeDashboard />} />
+                            <Route path="/employee/tasks" element={<EmployeeTasks />} />
                         </>
                     )}
 
+                    {/* DEFAULT REDIRECT */}
                     <Route path="*" element={<Navigate to="/" />} />
+
                 </Routes>
             </div>
         </div>
