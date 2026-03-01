@@ -177,4 +177,35 @@ public class TaskService {
 
         return taskRepository.save(task);
     }
-}
+    public Task reviewTask(Long taskId, TaskStatus status, String feedback) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only MANAGER can review tasks");
+        }
+
+        // Only allow review if task is SUBMITTED
+        if (task.getStatus() != TaskStatus.SUBMITTED) {
+            throw new RuntimeException("Only SUBMITTED tasks can be reviewed");
+        }
+
+        // Only allow APPROVED or REJECTED
+        if (status != TaskStatus.APPROVED && status != TaskStatus.REJECTED) {
+            throw new RuntimeException("Invalid review status");
+        }
+
+        task.setStatus(status);
+        task.setManagerFeedback(feedback);
+
+        return taskRepository.save(task);
+    }
+
+    }

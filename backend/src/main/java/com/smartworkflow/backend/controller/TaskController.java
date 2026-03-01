@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.smartworkflow.backend.dto.TaskSubmissionRequest;
 import java.util.List;
+import com.smartworkflow.backend.dto.ReviewRequest;
+
 
 @RestController
 @RequestMapping("/tasks")
@@ -56,5 +58,15 @@ public class TaskController {
     public Task submitTask(@PathVariable Long taskId,
                            @RequestBody TaskSubmissionRequest request) {
         return taskService.submitTask(taskId, request.getSubmissionLink());
+    }
+    @PreAuthorize("hasRole('MANAGER')")
+    @PutMapping("/{taskId}/review")
+    public Task reviewTask(@PathVariable Long taskId,
+                           @RequestBody ReviewRequest request) {
+        return taskService.reviewTask(
+                taskId,
+                request.getStatus(),
+                request.getFeedback()
+        );
     }
 }

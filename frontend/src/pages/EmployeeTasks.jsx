@@ -62,7 +62,23 @@ function EmployeeTasks() {
                                         {task.priority}
                                     </span>
                             </td>
-                            <td>{task.status}</td>
+                            <td>
+                                <span>{task.status}</span>
+
+                                {task.managerFeedback && (
+                                    <div
+                                        className={`small mt-1 ${
+                                            task.status === "APPROVED"
+                                                ? "text-success"
+                                                : task.status === "REJECTED"
+                                                    ? "text-danger"
+                                                    : ""
+                                        }`}
+                                    >
+                                        Feedback: {task.managerFeedback}
+                                    </div>
+                                )}
+                            </td>
                             <td>
                                 {task.status === "PENDING" && (
                                     <button
@@ -76,9 +92,23 @@ function EmployeeTasks() {
                                 {task.status === "IN_PROGRESS" && (
                                     <button
                                         className="btn btn-sm btn-success"
-                                        onClick={() => updateStatus(task.id, "SUBMITTED")}
+                                        onClick={() => {
+                                            const link = prompt("Enter submission link (GitHub / Drive / etc)");
+                                            if (!link) return;
+
+                                            fetch(`http://localhost:8080/tasks/${task.id}/submit`, {
+                                                method: "PUT",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                    submissionLink: link
+                                                })
+                                            }).then(() => fetchTasks());
+                                        }}
                                     >
-                                        Submit
+                                        Submit Work
                                     </button>
                                 )}
                             </td>
