@@ -168,8 +168,10 @@ public class TaskService {
             throw new RuntimeException("Not your task");
         }
 
-        if (task.getStatus() != TaskStatus.IN_PROGRESS) {
-            throw new RuntimeException("Task must be IN_PROGRESS to submit");
+        if (task.getStatus() != TaskStatus.IN_PROGRESS &&
+                task.getStatus() != TaskStatus.REJECTED) {
+
+            throw new RuntimeException("Task must be IN_PROGRESS or REJECTED to submit");
         }
 
         task.setSubmissionLink(submissionLink);

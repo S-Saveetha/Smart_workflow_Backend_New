@@ -111,6 +111,28 @@ function EmployeeTasks() {
                                         Submit Work
                                     </button>
                                 )}
+                                {task.status === "REJECTED" && (
+                                    <button
+                                        className="btn btn-sm btn-warning"
+                                        onClick={() => {
+                                            const link = prompt("Enter updated submission link:");
+                                            if (!link) return;
+
+                                            fetch(`http://localhost:8080/tasks/${task.id}/submit`, {
+                                                method: "PUT",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                    submissionLink: link
+                                                })
+                                            }).then(() => fetchTasks());
+                                        }}
+                                    >
+                                        Resubmit
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}
