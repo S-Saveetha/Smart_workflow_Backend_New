@@ -148,7 +148,6 @@ public class TaskService {
 
         return taskRepository.findByCreatedByManager(manager);
     }
-
     public Task submitTask(Long taskId, String submissionLink) {
 
         Task task = taskRepository.findById(taskId)
@@ -174,11 +173,16 @@ public class TaskService {
             throw new RuntimeException("Task must be IN_PROGRESS or REJECTED to submit");
         }
 
+
         task.setSubmissionLink(submissionLink);
         task.setStatus(TaskStatus.SUBMITTED);
 
+
+        task.setManagerFeedback(null);
+
         return taskRepository.save(task);
     }
+
     public Task reviewTask(Long taskId, TaskStatus status, String feedback) {
 
         Task task = taskRepository.findById(taskId)

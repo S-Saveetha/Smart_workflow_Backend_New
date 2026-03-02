@@ -12,6 +12,10 @@ function ManagerTasks() {
     const [deadline, setDeadline] = useState("");
     const [assignedEmployeeId, setAssignedEmployeeId] = useState("");
     const [priority, setPriority] = useState("MEDIUM");
+    const [showModal, setShowModal] = useState(false);
+    const [selectedTaskId, setSelectedTaskId] = useState(null);
+    const [reviewStatus, setReviewStatus] = useState("");
+    const [feedback, setFeedback] = useState("");
 
     // ================= FETCH TASKS =================
     const fetchTasks = async () => {
@@ -85,6 +89,29 @@ function ManagerTasks() {
         } catch (error) {
             console.error("Error creating task:", error);
         }
+    };
+
+    const confirmReview = async () => {
+        if (!feedback) {
+            alert("Feedback is required");
+            return;
+        }
+
+        await fetch(`http://localhost:8080/tasks/${selectedTaskId}/review`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                status: reviewStatus,
+                feedback: feedback
+            }),
+        });
+
+        setShowModal(false);
+        setFeedback("");
+        fetchTasks();
     };
 
     // ================= REVIEW TASK =================
@@ -242,18 +269,22 @@ function ManagerTasks() {
 
                                         <button
                                             className="btn btn-sm btn-success me-2"
-                                            onClick={() =>
-                                                reviewTask(task.id, "APPROVED")
-                                            }
+                                            onClick={() => {
+                                                setSelectedTaskId(task.id);
+                                                setReviewStatus("APPROVED");
+                                                setShowModal(true);
+                                            }}
                                         >
                                             Approve
                                         </button>
 
                                         <button
                                             className="btn btn-sm btn-danger"
-                                            onClick={() =>
-                                                reviewTask(task.id, "REJECTED")
-                                            }
+                                            onClick={() => {
+                                                setSelectedTaskId(task.id);
+                                                setReviewStatus("REJECTED");
+                                                setShowModal(true);
+                                            }}
                                         >
                                             Reject
                                         </button>
@@ -269,6 +300,60 @@ function ManagerTasks() {
                     </tbody>
                 </table>
             </div>
+
+            {showModal && (
+                <div
+                    className="modal fade show d-block"
+                    style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content shadow">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    {reviewStatus === "APPROVED"
+                                        ? "Approve Task"
+                                        : "Reject Task"}
+                                </h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setShowModal(false)}
+                                />
+                            </div>
+
+                            <div className="modal-body">
+                    <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Enter feedback..."
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                    />
+                            </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className={`btn ${
+                                        reviewStatus === "APPROVED"
+                                            ? "btn-success"
+                                            : "btn-danger"
+                                    }`}
+                                    onClick={confirmReview}
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
