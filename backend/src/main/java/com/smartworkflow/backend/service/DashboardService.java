@@ -23,7 +23,40 @@ public class DashboardService {
     @Autowired
     private UserRepository userRepository;
 
+    public DashboardResponse getManagerDashboard() {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only MANAGER allowed");
+        }
+
+        List<Task> tasks = taskRepository.findByCreatedByManager(manager);
+
+        long total = tasks.size();
+        long pending = tasks.stream().filter(t -> t.getStatus() == TaskStatus.PENDING).count();
+        long inProgress = tasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS).count();
+        long submitted = tasks.stream().filter(t -> t.getStatus() == TaskStatus.SUBMITTED).count();
+        long approved = tasks.stream().filter(t -> t.getStatus() == TaskStatus.APPROVED).count();
+        long rejected = tasks.stream().filter(t -> t.getStatus() == TaskStatus.REJECTED).count();
+
+        double completionRate = total == 0 ? 0 : ((double) approved / total) * 100;
+
+        DashboardResponse response = new DashboardResponse();
+        response.setTotalTasks(total);
+        response.setPending(pending);
+        response.setInProgress(inProgress);
+        response.setSubmitted(submitted);
+        response.setApproved(approved);
+        response.setRejected(rejected);
+        response.setCompletionRate(completionRate);
+
+        return response;
+    }
     public List<Task> getRecentTasks() {
         return taskRepository.findTop5ByOrderByIdDesc();
     }

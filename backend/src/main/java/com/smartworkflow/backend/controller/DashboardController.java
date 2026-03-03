@@ -16,6 +16,11 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("/manager")
+    public DashboardResponse managerDashboard() {
+        return dashboardService.getManagerDashboard();
+    }
     @PreAuthorize("hasAnyRole('MANAGER','EMPLOYEE','ADMIN')")
     @GetMapping
     public DashboardResponse getDashboard() {

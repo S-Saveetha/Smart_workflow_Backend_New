@@ -83,6 +83,13 @@ public class UserService {
 
         return userRepository.save(user);
     }
+    public List<User> getEmployeesByManager(Long managerId) {
+
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        return userRepository.findByManager(manager);
+    }
 
     // =====================================================
     // GET ALL USERS
@@ -91,6 +98,34 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public void deactivateManagerAndReassign(Long managerId, Long newManagerId) {
+
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        User newManager = userRepository.findById(newManagerId)
+                .orElseThrow(() -> new RuntimeException("New manager not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER") ||
+                !newManager.getRole().getName().equals("ROLE_MANAGER")) {
+
+            throw new RuntimeException("Both must be managers");
+        }
+
+        // Get employees under this manager
+        List<User> employees = userRepository.findByManager(manager);
+
+        // Reassign employees
+        for (User emp : employees) {
+            emp.setManager(newManager);
+        }
+
+        userRepository.saveAll(employees);
+
+        // Now deactivate old manager
+        manager.setActive(false);
+        userRepository.save(manager);
+    }
     // =====================================================
     // LOGIN
     // =====================================================

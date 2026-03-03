@@ -14,7 +14,10 @@ function AdminUsers() {
     });
     const token = localStorage.getItem("token");
     const currentEmail = localStorage.getItem("email");
-
+    const [showReassignModal, setShowReassignModal] = useState(false);
+    const [selectedManager, setSelectedManager] = useState(null);
+    const [managerEmployees, setManagerEmployees] = useState([]);
+    const [newManagerId, setNewManagerId] = useState("");
     // ================= FETCH USERS =================
     const fetchUsers = async () => {
         try {
@@ -122,6 +125,28 @@ function AdminUsers() {
         }
     };
 
+    const confirmReassignment = async () => {
+
+        if (!newManagerId) {
+            alert("Please select a new manager");
+            return;
+        }
+
+        await fetch(
+            `http://localhost:8080/users/deactivate-manager?managerId=${selectedManager.id}&newManagerId=${newManagerId}`,
+            {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        setShowReassignModal(false);
+        setNewManagerId("");
+        fetchUsers(); // refresh list
+    };
+
     const confirmToggle = async () => {
         if (!selectedUser) return;
 
@@ -163,6 +188,78 @@ function AdminUsers() {
                     + Create Employee
                 </button>
             </div>
+
+            {showReassignModal && (
+                <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content shadow">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    Reassign Employees Before Deactivation
+                                </h5>
+                                <button
+                                    className="btn-close"
+                                    onClick={() => setShowReassignModal(false)}
+                                />
+                            </div>
+
+                            <div className="modal-body">
+
+                                <p>
+                                    You are about to deactivate:
+                                    <strong> {selectedManager?.name}</strong>
+                                </p>
+
+                                <hr />
+
+                                <h6>Affected Employees ({managerEmployees.length})</h6>
+
+                                <ul className="mb-3">
+                                    {managerEmployees.map(emp => (
+                                        <li key={emp.id}>{emp.name}</li>
+                                    ))}
+                                </ul>
+
+                                <label className="form-label">
+                                    Select New Manager
+                                </label>
+
+                                <select
+                                    className="form-select"
+                                    value={newManagerId}
+                                    onChange={(e) => setNewManagerId(e.target.value)}
+                                >
+                                    <option value="">Choose Manager</option>
+                                    {managers
+                                        .filter(m => m.id !== selectedManager?.id && m.active)
+                                        .map(m => (
+                                            <option key={m.id} value={m.id}>
+                                                {m.name}
+                                            </option>
+                                        ))}
+                                </select>
+
+                            </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowReassignModal(false)}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={confirmReassignment}
+                                >
+                                    Confirm & Deactivate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ================= MODAL ================= */}
             {showModal && (
@@ -353,9 +450,9 @@ function AdminUsers() {
                                         <td>{user.name}</td>
                                         <td>{user.email}</td>
                                         <td>
-                                                <span className={`badge ${user.active ? "bg-success" : "bg-danger"}`}>
-                                                    {user.active ? "Active" : "Inactive"}
-                                                </span>
+                        <span className={`badge ${user.active ? "bg-success" : "bg-danger"}`}>
+                            {user.active ? "Active" : "Inactive"}
+                        </span>
                                         </td>
                                         <td className="text-center">
                                             <button
@@ -365,9 +462,35 @@ function AdminUsers() {
                                                         ? "btn-outline-danger"
                                                         : "btn-outline-success"
                                                 }`}
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setShowModal(true);
+                                                onClick={async () => {
+
+                                                    // If activating → normal flow
+                                                    if (!user.active) {
+                                                        setSelectedUser(user);
+                                                        setShowModal(true);
+                                                        return;
+                                                    }
+
+                                                    // If deactivating → open reassignment modal
+                                                    setSelectedManager(user);
+
+                                                    try {
+                                                        const res = await fetch(
+                                                            `http://localhost:8080/users/manager/${user.id}/employees`,
+                                                            {
+                                                                headers: {
+                                                                    Authorization: `Bearer ${token}`,
+                                                                },
+                                                            }
+                                                        );
+
+                                                        const data = await res.json();
+                                                        setManagerEmployees(data);
+                                                        setShowReassignModal(true);
+
+                                                    } catch (err) {
+                                                        console.error("Error fetching employees:", err);
+                                                    }
                                                 }}
                                             >
                                                 {user.active ? "Deactivate" : "Activate"}

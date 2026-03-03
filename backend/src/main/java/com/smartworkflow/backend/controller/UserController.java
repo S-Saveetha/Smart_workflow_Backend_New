@@ -8,6 +8,7 @@ import com.smartworkflow.backend.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,12 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
+    @GetMapping("/manager/{id}/employees")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<User>> getEmployeesByManager(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getEmployeesByManager(id));
+    }
+
     // ================= LOGIN =================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -35,6 +42,17 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PutMapping("/deactivate-manager")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deactivateManager(
+            @RequestParam Long managerId,
+            @RequestParam Long newManagerId) {
+
+        userService.deactivateManagerAndReassign(managerId, newManagerId);
+
+        return ResponseEntity.ok("Manager deactivated and employees reassigned");
     }
 
     // ================= GET ALL USERS =================

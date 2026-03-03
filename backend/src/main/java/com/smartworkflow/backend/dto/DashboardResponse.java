@@ -9,7 +9,6 @@ public class DashboardResponse {
     private long submitted;
     private long approved;
     private long rejected;
-
     // User Stats
     private long totalUsers;
     private long totalManagers;
@@ -17,6 +16,62 @@ public class DashboardResponse {
     private long activeUsers;
     private long inactiveUsers;
 
+    private double completionRate;
+    public void setTotalTasks(long totalTasks) {
+        this.totalTasks = totalTasks;
+    }
+
+    public void setPending(long pending) {
+        this.pending = pending;
+    }
+
+    public void setInProgress(long inProgress) {
+        this.inProgress = inProgress;
+    }
+
+    public void setSubmitted(long submitted) {
+        this.submitted = submitted;
+    }
+
+    public void setApproved(long approved) {
+        this.approved = approved;
+    }
+
+    public void setRejected(long rejected) {
+        this.rejected = rejected;
+    }
+
+    public void setTotalUsers(long totalUsers) {
+        this.totalUsers = totalUsers;
+    }
+
+    public void setTotalManagers(long totalManagers) {
+        this.totalManagers = totalManagers;
+    }
+
+    public void setTotalEmployees(long totalEmployees) {
+        this.totalEmployees = totalEmployees;
+    }
+
+    public void setActiveUsers(long activeUsers) {
+        this.activeUsers = activeUsers;
+    }
+
+    public void setInactiveUsers(long inactiveUsers) {
+        this.inactiveUsers = inactiveUsers;
+    }
+
+
+
+    public double getCompletionRate() {
+        return completionRate;
+    }
+
+    public void setCompletionRate(double completionRate) {
+        this.completionRate = completionRate;
+    }
+    public DashboardResponse() {
+    }
     public DashboardResponse(
             long totalTasks,
             long pending,
