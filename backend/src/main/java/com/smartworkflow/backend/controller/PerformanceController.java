@@ -10,6 +10,12 @@ import java.util.List;
 @RequestMapping("/performance")
 public class PerformanceController {
 
+    // ADMIN: get employees performance under a manager
+    @GetMapping("/manager/{managerId}")
+    public List<PerformanceResponse> getManagerPerformance(@PathVariable Long managerId) {
+        return performanceService.getManagerTeamPerformance(managerId);
+    }
+
     @Autowired
     private PerformanceService performanceService;
 

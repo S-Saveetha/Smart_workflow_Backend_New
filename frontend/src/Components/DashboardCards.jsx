@@ -56,14 +56,26 @@ function DashboardCards({ data, role }) {
 }
 
 function StatCard({ title, value, color = "" }) {
+
+    const iconMap = {
+        "Total Tasks": "bi-list-task",
+        "Pending": "bi-hourglass-split",
+        "In Progress": "bi-lightning-charge",
+        "Submitted": "bi-upload",
+        "Approved": "bi-check-circle",
+        "Rejected": "bi-x-circle",
+    };
+
     return (
-        <div className="col-md-4">
+        <div className="col-6 col-md-4 col-lg-2">
             <div className="card shadow-sm p-3 text-center">
+                <i className={`bi ${iconMap[title]} fs-3 mb-2`}></i>
                 <h6>{title}</h6>
                 <h3 className={color}>{value}</h3>
             </div>
         </div>
     );
+
 }
 
 export default DashboardCards;

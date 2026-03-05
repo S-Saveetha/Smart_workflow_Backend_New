@@ -27,6 +27,16 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
+    @GetMapping("/managers")
+    public List<User> getManagers() {
+        return userService.getManagers();
+    }
+    @GetMapping("/my-employees")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<List<User>> getMyEmployees() {
+        return ResponseEntity.ok(userService.getEmployeesForLoggedInManager());
+    }
+
     @GetMapping("/manager/{id}/employees")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getEmployeesByManager(@PathVariable Long id) {

@@ -10,6 +10,8 @@ import com.smartworkflow.backend.repository.RoleRepository;
 import com.smartworkflow.backend.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -83,12 +85,31 @@ public class UserService {
 
         return userRepository.save(user);
     }
+    public List<User> getEmployeesForLoggedInManager() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only MANAGER can access this");
+        }
+
+        return userRepository.findByManagerId(manager.getId());
+    }
+
+
     public List<User> getEmployeesByManager(Long managerId) {
 
         User manager = userRepository.findById(managerId)
                 .orElseThrow(() -> new RuntimeException("Manager not found"));
 
         return userRepository.findByManager(manager);
+    }
+    public List<User> getManagers() {
+        return userRepository.findByRole_Name("ROLE_MANAGER");
     }
 
     // =====================================================

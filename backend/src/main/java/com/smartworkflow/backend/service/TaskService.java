@@ -44,6 +44,13 @@ public class TaskService {
             throw new RuntimeException("Task can only be assigned to EMPLOYEE");
         }
 
+        // ✅ NEW SECURITY CHECK
+        if (employee.getManager() == null ||
+                !employee.getManager().getId().equals(manager.getId())) {
+
+            throw new RuntimeException("You can only assign tasks to your own employees");
+        }
+
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -51,6 +58,7 @@ public class TaskService {
         task.setStatus(TaskStatus.PENDING);
         task.setAssignedEmployee(employee);
         task.setCreatedByManager(manager);
+
         try {
             task.setPriority(
                     com.smartworkflow.backend.entity.Priority.valueOf(

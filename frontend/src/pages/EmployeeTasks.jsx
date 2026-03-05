@@ -82,13 +82,14 @@ function EmployeeTasks() {
 
                                 <td>{task.deadline}</td>
 
+                                {/* PRIORITY BADGE */}
                                 <td>
                                         <span
                                             className={`badge ${
                                                 task.priority === "HIGH"
                                                     ? "bg-danger"
                                                     : task.priority === "MEDIUM"
-                                                        ? "bg-warning"
+                                                        ? "bg-warning text-dark"
                                                         : "bg-success"
                                             }`}
                                         >
@@ -96,8 +97,23 @@ function EmployeeTasks() {
                                         </span>
                                 </td>
 
+                                {/* STATUS BADGE (NEW UI) */}
                                 <td>
-                                    <div>{task.status}</div>
+                                        <span
+                                            className={`badge ${
+                                                task.status === "APPROVED"
+                                                    ? "bg-success"
+                                                    : task.status === "REJECTED"
+                                                        ? "bg-danger"
+                                                        : task.status === "IN_PROGRESS"
+                                                            ? "bg-primary"
+                                                            : task.status === "SUBMITTED"
+                                                                ? "bg-info"
+                                                                : "bg-secondary"
+                                            }`}
+                                        >
+                                            {task.status}
+                                        </span>
 
                                     {task.managerFeedback && (
                                         <div
@@ -119,10 +135,7 @@ function EmployeeTasks() {
                                         <button
                                             className="btn btn-sm btn-primary"
                                             onClick={() =>
-                                                updateStatus(
-                                                    task.id,
-                                                    "IN_PROGRESS"
-                                                )
+                                                updateStatus(task.id, "IN_PROGRESS")
                                             }
                                         >
                                             Start
@@ -138,9 +151,7 @@ function EmployeeTasks() {
                                                     : "btn-success"
                                             }`}
                                             onClick={() => {
-                                                setActiveSubmitTaskId(
-                                                    task.id
-                                                );
+                                                setActiveSubmitTaskId(task.id);
                                                 setSubmissionLink("");
                                             }}
                                         >
@@ -163,17 +174,13 @@ function EmployeeTasks() {
                                                 placeholder="Paste GitHub / Drive / PDF link"
                                                 value={submissionLink}
                                                 onChange={(e) =>
-                                                    setSubmissionLink(
-                                                        e.target.value
-                                                    )
+                                                    setSubmissionLink(e.target.value)
                                                 }
                                             />
 
                                             <button
                                                 className="btn btn-success btn-sm me-2"
-                                                onClick={() =>
-                                                    submitTask(task.id)
-                                                }
+                                                onClick={() => submitTask(task.id)}
                                             >
                                                 Submit
                                             </button>
@@ -181,9 +188,7 @@ function EmployeeTasks() {
                                             <button
                                                 className="btn btn-secondary btn-sm"
                                                 onClick={() =>
-                                                    setActiveSubmitTaskId(
-                                                        null
-                                                    )
+                                                    setActiveSubmitTaskId(null)
                                                 }
                                             >
                                                 Cancel

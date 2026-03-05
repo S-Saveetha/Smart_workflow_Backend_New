@@ -113,7 +113,8 @@ public class DashboardService {
             approved = taskRepository.countByStatus(TaskStatus.APPROVED);
             rejected = taskRepository.countByStatus(TaskStatus.REJECTED);
 
-            totalUsers = userRepository.count();
+            totalUsers = userRepository.countByRole_Name("ROLE_MANAGER")
+                    + userRepository.countByRole_Name("ROLE_EMPLOYEE");
             totalManagers = userRepository.countByRole_Name("ROLE_MANAGER");
             totalEmployees = userRepository.countByRole_Name("ROLE_EMPLOYEE");
             activeUsers = userRepository.countByActive(true);

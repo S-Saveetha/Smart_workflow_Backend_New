@@ -31,20 +31,17 @@ function ManagerTasks() {
         }
     };
 
+
     // ================= FETCH EMPLOYEES =================
     const fetchEmployees = async () => {
         try {
-            const response = await fetch("http://localhost:8080/users", {
+            const response = await fetch("http://localhost:8080/users/my-employees", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await response.json();
 
-            const onlyEmployees = data.filter(
-                (user) => user.role?.name === "ROLE_EMPLOYEE"
-            );
-
-            setEmployees(onlyEmployees);
+            setEmployees(data);
         } catch (error) {
             console.error("Error fetching employees:", error);
         }
@@ -201,11 +198,16 @@ function ManagerTasks() {
                             onChange={(e) => setAssignedEmployeeId(e.target.value)}
                         >
                             <option value="">Assign Employee</option>
-                            {employees.map((emp) => (
-                                <option key={emp.id} value={emp.id}>
-                                    {emp.name}
-                                </option>
-                            ))}
+
+                            {employees.length === 0 ? (
+                                <option disabled>No employees available</option>
+                            ) : (
+                                employees.map((emp) => (
+                                    <option key={emp.id} value={emp.id}>
+                                        {emp.name}
+                                    </option>
+                                ))
+                            )}
                         </select>
                     </div>
 
@@ -253,7 +255,23 @@ function ManagerTasks() {
                                     </span>
                             </td>
 
-                            <td>{task.status}</td>
+                            <td>
+    <span
+        className={`badge ${
+            task.status === "APPROVED"
+                ? "bg-success"
+                : task.status === "REJECTED"
+                    ? "bg-danger"
+                    : task.status === "IN_PROGRESS"
+                        ? "bg-primary"
+                        : task.status === "SUBMITTED"
+                            ? "bg-info"
+                            : "bg-secondary"
+        }`}
+    >
+        {task.status}
+    </span>
+                            </td>
 
                             <td>
                                 {task.status === "SUBMITTED" ? (

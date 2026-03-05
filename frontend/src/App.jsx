@@ -44,7 +44,7 @@ function App() {
 
             setIsLoggedIn(true);
         } catch (error) {
-            console.error("Login Error:", error);
+            console.error("Login.jsx Error:", error);
         }
     };
 
@@ -72,7 +72,7 @@ function App() {
                     </p>
                 </div>
 
-                {/* RIGHT SIDE – Login Form */}
+                {/* RIGHT SIDE – Login.jsx Form */}
                 <div className="d-flex justify-content-center align-items-center bg-light" style={{ flex: 1 }}>
                     <div className="card shadow-lg p-5" style={{ width: "400px", borderRadius: "20px" }}>
                         <h3 className="text-center mb-4 fw-bold">Login</h3>

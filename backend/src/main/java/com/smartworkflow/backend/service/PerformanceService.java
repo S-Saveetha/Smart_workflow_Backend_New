@@ -44,6 +44,15 @@ public class PerformanceService {
                 percentage
         );
     }
+    // 🔹 Employees performance under a manager
+    public List<PerformanceResponse> getManagerTeamPerformance(Long managerId) {
+
+        List<User> employees = userRepository.findByManagerId(managerId);
+
+        return employees.stream()
+                .map(emp -> getPerformanceReport(emp.getId()))
+                .toList();
+    }
 
     // 🔹 Admin: All employees performance
     public List<PerformanceResponse> getAllPerformanceReports() {

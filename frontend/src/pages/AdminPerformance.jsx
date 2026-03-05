@@ -1,4 +1,3 @@
-
 import { Bar } from "react-chartjs-2";
 import { useEffect, useState, useMemo } from "react";
 import {
@@ -21,13 +20,17 @@ ChartJS.register(
 );
 
 function AdminPerformance() {
-    const [data, setData] = useState([]);
+
     const token = localStorage.getItem("token");
 
-    const fetchPerformance = async () => {
+    const [data, setData] = useState([]);
+    const [managers, setManagers] = useState([]);
+
+    // Fetch managers list
+    const fetchManagers = async () => {
         try {
             const response = await fetch(
-                "http://localhost:8080/performance",
+                "http://localhost:8080/users/managers",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -35,40 +38,113 @@ function AdminPerformance() {
                 }
             );
 
-            if (!response.ok) throw new Error("Failed to fetch performance");
-
             const result = await response.json();
-            setData(result);
+            setManagers(result);
+
         } catch (error) {
-            console.error(error);
+            console.error("Managers fetch error:", error);
         }
     };
 
+    // Fetch performance of employees under selected manager
+    const fetchManagerPerformance = async (managerId) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/performance/manager/${managerId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
+            const result = await response.json();
+            setData(result);
+
+        } catch (error) {
+            console.error("Manager performance error:", error);
+        }
+    };
+
+    // Load managers when page opens
     useEffect(() => {
-        const load = async () => {
-            await fetchPerformance();
-        };
-        load();
+        fetchManagers();
     }, []);
 
     const chartData = useMemo(() => ({
         labels: data.map((user) => user.name),
         datasets: [
             {
-                label: "Performance (%)",
+                label: "Performance %",
                 data: data.map((user) => user.performancePercentage),
-                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                backgroundColor: data.map((user) =>
+                    user.performancePercentage >= 70
+                        ? "rgba(40,167,69,0.7)"
+                        : user.performancePercentage >= 40
+                            ? "rgba(255,193,7,0.7)"
+                            : "rgba(220,53,69,0.7)"
+                ),
             },
         ],
     }), [data]);
 
     return (
         <div className="container-fluid">
-            <div className="card shadow-sm p-4">
-                <h2 className="mb-4">Performance Dashboard</h2>
 
-                {data.length > 0 ? (
+            {/* MANAGERS LIST */}
+
+            <div className="card shadow-sm p-4 mb-4">
+
+                <h3 className="mb-3">Managers</h3>
+
+                <table className="table table-hover">
+
+                    <thead className="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {managers.map((manager) => (
+
+                        <tr key={manager.id}>
+
+                            <td>{manager.name}</td>
+                            <td>{manager.email}</td>
+
+                            <td>
+                                <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={() =>
+                                        fetchManagerPerformance(manager.id)
+                                    }
+                                >
+                                    View Team Performance
+                                </button>
+                            </td>
+
+                        </tr>
+
+                    ))}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {/* PERFORMANCE SECTION */}
+
+            {data.length > 0 && (
+
+                <div className="card shadow-sm p-4">
+
+                    <h3 className="mb-4">Team Performance</h3>
+
                     <div style={{ height: "350px" }}>
                         <Bar
                             data={chartData}
@@ -87,10 +163,67 @@ function AdminPerformance() {
                             }}
                         />
                     </div>
-                ) : (
-                    <p className="text-muted">No performance data available.</p>
-                )}
-            </div>
+
+                    <hr className="my-4" />
+
+                    <table className="table table-hover align-middle">
+
+                        <thead className="table-dark">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Total Tasks</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
+                            <th>Performance</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {data.map((user) => (
+
+                            <tr key={user.employeeId}>
+
+                                <td>{user.name}</td>
+
+                                <td>{user.totalTasks}</td>
+
+                                <td className="text-success">
+                                    {user.completedTasks}
+                                </td>
+
+                                <td className="text-warning">
+                                    {user.pendingTasks}
+                                </td>
+
+                                <td>
+
+                                        <span
+                                            className={`badge ${
+                                                user.performancePercentage >= 80
+                                                    ? "bg-success"
+                                                    : user.performancePercentage >= 50
+                                                        ? "bg-warning text-dark"
+                                                        : "bg-danger"
+                                            }`}
+                                        >
+                                            {user.performancePercentage.toFixed(1)}%
+                                        </span>
+
+                                </td>
+
+                            </tr>
+
+                        ))}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            )}
+
         </div>
     );
 }
