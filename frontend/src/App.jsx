@@ -9,6 +9,8 @@ import AdminPerformance from "./pages/AdminPerformance";
 
 import ManagerDashboard from "./pages/ManagerDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import ManagerPerformance from "./pages/ManagerPerformance";
+import Profile from "./pages/Profile";
 
 function App() {
     const [email, setEmail] = useState("");
@@ -41,6 +43,8 @@ function App() {
             localStorage.setItem("token", data.token);
             localStorage.setItem("role", data.role);
             localStorage.setItem("email", data.email);
+            localStorage.setItem("name", data.name);
+
 
             setIsLoggedIn(true);
         } catch (error) {
@@ -136,6 +140,7 @@ function App() {
                         <>
                             <Route path="/" element={<ManagerDashboard />} />
                             <Route path="/manager/tasks" element={<ManagerTasks />} />
+                            <Route path="/manager/performance" element={<ManagerPerformance />} />
                         </>
                     )}
 
@@ -146,6 +151,9 @@ function App() {
                             <Route path="/employee/tasks" element={<EmployeeTasks />} />
                         </>
                     )}
+
+                    {/* PROFILE ROUTE (ALL ROLES) */}
+                    <Route path="/profile" element={<Profile />} />
 
                     {/* DEFAULT REDIRECT */}
                     <Route path="*" element={<Navigate to="/" />} />

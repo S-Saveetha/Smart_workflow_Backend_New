@@ -16,6 +16,11 @@ public class PerformanceController {
         return performanceService.getManagerTeamPerformance(managerId);
     }
 
+    @GetMapping("/manager")
+    public List<PerformanceResponse> getManagerTeamPerformance() {
+        return performanceService.getManagerTeamPerformance();
+    }
+
     @Autowired
     private PerformanceService performanceService;
 

@@ -6,6 +6,8 @@ import com.smartworkflow.backend.entity.User;
 import com.smartworkflow.backend.repository.TaskRepository;
 import com.smartworkflow.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +46,28 @@ public class PerformanceService {
                 percentage
         );
     }
+
+    public List<PerformanceResponse> getManagerTeamPerformance() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User manager = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new RuntimeException("Only manager allowed");
+        }
+
+        List<User> employees = userRepository.findByManager(manager);
+
+        return employees.stream()
+                .map(emp -> getPerformanceReport(emp.getId()))
+                .toList();
+    }
+
     // 🔹 Employees performance under a manager
     public List<PerformanceResponse> getManagerTeamPerformance(Long managerId) {
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
     FaTachometerAlt,
-    FaUsers,
+    FaUserCircle,
     FaChartLine,
     FaTasks,
     FaSignOutAlt,
@@ -35,7 +35,22 @@ const Sidebar = ({ role }) => {
 
             <ul className="nav nav-pills flex-column mb-auto">
 
-                {/* Dashboard */}
+                {/* PROFILE - FIRST */}
+                <li className="mb-2">
+                    <NavLink
+                        to="/profile"
+                        className={({ isActive }) =>
+                            `nav-link d-flex align-items-center ${
+                                isActive ? "active bg-primary" : "text-white"
+                            }`
+                        }
+                    >
+                        <FaUserCircle />
+                        {!collapsed && <span className="ms-2">Profile</span>}
+                    </NavLink>
+                </li>
+
+                {/* DASHBOARD */}
                 <li className="nav-item mb-2">
                     <NavLink
                         to="/"
@@ -62,7 +77,7 @@ const Sidebar = ({ role }) => {
                                     }`
                                 }
                             >
-                                <FaUsers />
+                                <FaUserCircle />
                                 {!collapsed && <span className="ms-2">Users</span>}
                             </NavLink>
                         </li>
@@ -85,19 +100,35 @@ const Sidebar = ({ role }) => {
 
                 {/* MANAGER MENU */}
                 {role === "ROLE_MANAGER" && (
-                    <li className="mb-2">
-                        <NavLink
-                            to="/manager/tasks"
-                            className={({ isActive }) =>
-                                `nav-link d-flex align-items-center ${
-                                    isActive ? "active bg-primary" : "text-white"
-                                }`
-                            }
-                        >
-                            <FaTasks />
-                            {!collapsed && <span className="ms-2">My Tasks</span>}
-                        </NavLink>
-                    </li>
+                    <>
+                        <li className="mb-2">
+                            <NavLink
+                                to="/manager/tasks"
+                                className={({ isActive }) =>
+                                    `nav-link d-flex align-items-center ${
+                                        isActive ? "active bg-primary" : "text-white"
+                                    }`
+                                }
+                            >
+                                <FaTasks />
+                                {!collapsed && <span className="ms-2">My Tasks</span>}
+                            </NavLink>
+                        </li>
+
+                        <li className="mb-2">
+                            <NavLink
+                                to="/manager/performance"
+                                className={({ isActive }) =>
+                                    `nav-link d-flex align-items-center ${
+                                        isActive ? "active bg-primary" : "text-white"
+                                    }`
+                                }
+                            >
+                                <FaChartLine />
+                                {!collapsed && <span className="ms-2">Performance</span>}
+                            </NavLink>
+                        </li>
+                    </>
                 )}
 
                 {/* EMPLOYEE MENU */}

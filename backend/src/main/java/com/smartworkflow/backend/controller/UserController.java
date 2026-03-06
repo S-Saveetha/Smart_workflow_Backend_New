@@ -1,5 +1,6 @@
 package com.smartworkflow.backend.controller;
 
+import com.smartworkflow.backend.dto.ChangePasswordRequest;
 import com.smartworkflow.backend.dto.LoginRequest;
 import com.smartworkflow.backend.dto.LoginResponse;
 import com.smartworkflow.backend.dto.UserRequest;
@@ -68,6 +69,20 @@ public class UserController {
     // ================= GET ALL USERS =================
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
+
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody ChangePasswordRequest request) {
+
+        userService.changePassword(
+                request.getCurrentPassword(),
+                request.getNewPassword()
+        );
+
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
 }
