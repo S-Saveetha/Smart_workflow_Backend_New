@@ -1,69 +1,158 @@
 Smart Workflow Performance Tool
 Overview
 
-The Smart Workflow Performance Tool is a role-based task management and employee performance evaluation system designed to improve organizational workflow efficiency.
-The system enables Admins, Managers, and Employees to collaborate through structured workflows while automatically tracking employee performance metrics.
+Smart Workflow Performance Tool is a role-based task management and employee performance monitoring system designed to improve organizational workflow efficiency.
+The platform enables Admins, Managers, and Employees to collaborate through structured task workflows while automatically tracking employee productivity and performance metrics.
+
+The system provides a centralized environment for task assignment, submission, approval, and performance analytics using a secure and scalable full-stack architecture.
 
 Problem Statement
 
-Organizations often face difficulty in monitoring employee productivity, tracking task completion, and evaluating performance efficiently. Manual monitoring leads to delays, lack of transparency, and inefficient reporting.
-This system provides an automated workflow platform to manage tasks, monitor performance, and generate structured evaluation insights.
+Organizations often struggle to efficiently monitor employee productivity, track task progress, and evaluate performance across teams. Traditional manual tracking methods result in:
+
+Lack of transparency in task progress
+
+Delayed performance evaluations 
+
+Inefficient task coordination
+
+Limited visibility into employee productivity
+
+A structured and automated workflow system is required to streamline task management and generate reliable performance insights.
 
 Solution
 
-The proposed system provides:
+The Smart Workflow Performance Tool provides a centralized workflow platform that enables:
 
-Role-based secure access (Admin, Manager, Employee)
+Secure role-based access control
 
-Task creation, assignment, and tracking
+Structured task creation and assignment
 
-Employee task update and status monitoring
+Task submission and review workflow
 
-Automated performance calculation
+Automated employee performance calculation
 
-REST-based backend services for scalable workflow handling
+Secure JWT-based authentication
 
-Tech Stack
+Interactive dashboard insights for workflow monitoring
 
-Backend: Spring Boot
+The system ensures transparency, accountability, and efficient task lifecycle management within organizations.
 
-Database: MySQL
+Key Features
+Role-Based Access Control
 
-Security: JWT Authentication + Spring Security
-
-Architecture: RESTful Microservice-ready layered architecture
-
-System Workflow
+The system supports three roles with controlled permissions:
 
 Admin
 
-Creates Managers and Employees
+Create and manage Managers and Employees
 
-Manages system users
+Monitor system activity
+
+View overall performance analytics
 
 Manager
 
-Creates and assigns tasks to employees
+Create and assign tasks to employees
 
-Reviews submitted task updates
+Track task progress
 
-Updates task status
+Review submissions and approve or reject tasks
+
+View performance of assigned employees
 
 Employee
 
-Views assigned tasks
+View assigned tasks
 
-Submits task progress and completion updates
+Update task status
 
-System
+Submit completed work
 
-Tracks completed tasks
+Track personal task progress
 
-Generates employee performance ratings
+System Workflow
+1. Admin
+
+Creates managers and employees
+
+Maintains user management
+
+Monitors system performance
+
+2. Manager
+
+Assigns tasks to employees
+
+Reviews task submissions
+
+Approves or rejects completed work
+
+3. Employee
+
+Starts assigned tasks
+
+Updates task progress
+
+Submits completed work for review
+
+4. System
+
+Tracks task lifecycle
+
+Calculates employee performance metrics
+
+Generates dashboard insights
+
+Technology Stack
+Frontend
+
+React (Vite)
+
+Bootstrap UI
+
+Chart.js for performance visualization
+
+React Router for role-based navigation
+
+Backend
+
+Spring Boot
+
+Spring Security
+
+JWT Authentication
+
+RESTful API architecture
+
+Database
+
+MySQL
+
+Version Control
+
+Git & GitHub
+
+Project Architecture
+
+The system follows a layered architecture to ensure modularity and scalability.
+
+Controller Layer
+↓
+Service Layer
+↓
+Repository Layer
+↓
+Database
+
+Security is implemented using:
+
+JWT Authentication
+
+Spring Security Role Authorization
 
 Database Schema
-
-Main entities:
+Core Entities
 
 Role
 
@@ -73,33 +162,61 @@ Task
 
 Performance
 
-Relationships:
-
+Relationships
 Role → Users
 
 Manager → Tasks (created)
 
 Employee → Tasks (assigned)
 
-Employee → Performance
+Employee → Performance metrics
+Performance Evaluation
 
-Architecture
+Employee performance is automatically calculated based on task completion metrics.
 
-The system follows a Layered REST Architecture:
+Metrics include:
 
-Controller → Service → Repository → Database
-Secured using JWT Authentication and Spring Security Role Authorization.
+Total tasks assigned
 
-Future Enhancements
+Completed tasks
 
-Frontend Dashboard (React / Angular)
+Pending tasks
 
-Real-time notifications
+Performance percentage
 
-Performance analytics dashboard
+Performance insights are visualized through dashboard charts.
 
-Workflow automation rules
+UI Modules
+Admin Dashboard
 
-Author
+User management
 
-Smart Workflow Backend Project – Phase 1 Implementation
+System statistics
+
+Employee performance monitoring
+
+Manager Dashboard
+
+Task creation and assignment
+
+Task review workflow
+
+Employee performance tracking
+
+Employee Dashboard
+
+Task status updates
+
+Work submission
+
+Personal task overview
+
+Security
+
+The system implements secure authentication and authorization using:
+
+JWT (JSON Web Tokens)
+
+Spring Security
+
+Role-based endpoint protection
