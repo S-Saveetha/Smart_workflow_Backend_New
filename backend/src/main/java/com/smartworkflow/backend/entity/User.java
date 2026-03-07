@@ -1,8 +1,10 @@
 package com.smartworkflow.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,10 +15,15 @@ public class User {
 
     private String name;
 
+
+
+    @JsonIgnore
+    private String password;
+
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String password;
+
 
     // Map to existing DB column "isActive"
     @Column(name = "isActive", nullable = false)

@@ -2,6 +2,7 @@ package com.smartworkflow.backend.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,24 +11,27 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "mysecretkeymysecretkeymysecretkey123";
+    @Value("${jwt.secret}")
+    private String SECRET;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private Key getKey() {
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
 
     public String generateToken(String username) {
 
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hrs
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String extractUsername(String token) {
 
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()

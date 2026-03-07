@@ -33,7 +33,7 @@ public class UserController {
         return userService.getManagers();
     }
     @GetMapping("/my-employees")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     public ResponseEntity<List<User>> getMyEmployees() {
         return ResponseEntity.ok(userService.getEmployeesForLoggedInManager());
     }

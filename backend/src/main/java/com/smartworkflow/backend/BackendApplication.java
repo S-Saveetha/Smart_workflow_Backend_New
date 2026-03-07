@@ -3,14 +3,6 @@ package com.smartworkflow.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.smartworkflow.backend.entity.User;
-import com.smartworkflow.backend.entity.Role;
-import com.smartworkflow.backend.repository.UserRepository;
-import com.smartworkflow.backend.repository.RoleRepository;
 
 @SpringBootApplication
 public class BackendApplication {

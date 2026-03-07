@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,15 +24,16 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    // Skip JWT for auth endpoints
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String path = request.getServletPath();
 
+        // Skip JWT only for login
         return path.equals("/users/login") ||
                 path.startsWith("/error");
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -48,17 +50,23 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
+
             String username = jwtUtil.extractUsername(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
