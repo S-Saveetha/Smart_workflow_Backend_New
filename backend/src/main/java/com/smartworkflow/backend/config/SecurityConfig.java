@@ -23,25 +23,20 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {}) // enable cors
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // PUBLIC AUTH ENDPOINTS
                         .requestMatchers("/users/login").permitAll()
-
-                        // ALLOW ERROR PAGE
                         .requestMatchers("/error").permitAll()
 
-                        // EVERYTHING ELSE NEEDS AUTH
                         .anyRequest().authenticated()
                 )
 
-                // JWT uses stateless sessions
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // ADD JWT FILTER
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

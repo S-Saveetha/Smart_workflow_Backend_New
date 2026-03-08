@@ -24,16 +24,16 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    // Skip JWT for auth endpoints
+    // Skip JWT for login endpoint
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String path = request.getServletPath();
 
-        // Skip JWT only for login
         return path.equals("/users/login") ||
                 path.startsWith("/error");
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -53,17 +53,21 @@ public class JwtFilter extends OncePerRequestFilter {
 
             String username = jwtUtil.extractUsername(token);
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(username);
+            if (username != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(username);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
 
         } catch (Exception e) {
 

@@ -12,10 +12,13 @@ import java.util.Date;
 public class JwtUtil {
 
     @Value("${jwt.secret}")
-    private String SECRET;
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     private Key getKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateToken(String username) {
@@ -23,7 +26,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -41,6 +44,7 @@ public class JwtUtil {
     public boolean validateToken(String token, String username) {
 
         String extracted = extractUsername(token);
+
         return extracted.equals(username);
     }
 }
