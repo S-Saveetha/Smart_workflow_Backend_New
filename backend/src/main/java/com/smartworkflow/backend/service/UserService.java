@@ -50,6 +50,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getManager() != null) {
+            user.setManager(null);
+        }
+
+        userRepository.delete(user);
+    }
     // =====================================================
     // CREATE USER WITH MANAGER MAPPING
     // =====================================================

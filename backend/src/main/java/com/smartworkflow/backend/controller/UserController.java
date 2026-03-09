@@ -43,7 +43,12 @@ public class UserController {
     public ResponseEntity<List<User>> getEmployeesByManager(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getEmployeesByManager(id));
     }
-
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
     // ================= LOGIN =================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
