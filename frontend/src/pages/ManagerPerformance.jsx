@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 function ManagerPerformance() {
 
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     const [data, setData] = useState([]);
 
     const fetchPerformance = async () => {
         try {
             const response = await fetch(
-                "http://localhost:8080/performance/manager",
+                `${API}/performance/manager`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -62,17 +63,17 @@ function ManagerPerformance() {
                                 <td>{emp.completedTasks}</td>
                                 <td>{emp.pendingTasks}</td>
                                 <td>
-                                       <span
-                                           className={`badge ${
-                                               emp.performancePercentage >= 70
-                                                   ? "bg-success"
-                                                   : emp.performancePercentage >= 40
-                                                       ? "bg-warning text-dark"
-                                                       : "bg-danger"
-                                           }`}
-                                       >
-    {emp.performancePercentage}%
-</span>
+                                    <span
+                                        className={`badge ${
+                                            emp.performancePercentage >= 70
+                                                ? "bg-success"
+                                                : emp.performancePercentage >= 40
+                                                ? "bg-warning text-dark"
+                                                : "bg-danger"
+                                        }`}
+                                    >
+                                        {emp.performancePercentage}%
+                                    </span>
                                 </td>
                             </tr>
                         ))

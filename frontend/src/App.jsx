@@ -24,7 +24,7 @@ function App() {
     // ================= LOGIN =================
     const handleLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8080/users/login", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/users/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

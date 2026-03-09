@@ -1,4 +1,4 @@
-function DashboardCards({ data, role }) {
+function DashboardCards({ data = {}, role }) {
     return (
         <div className="container-fluid">
             <h2 className="mb-4">
@@ -15,28 +15,28 @@ function DashboardCards({ data, role }) {
                     <div className="col-md-3">
                         <div className="card shadow-sm p-3 text-center">
                             <h6>Total Users</h6>
-                            <h3>{data.totalUsers}</h3>
+                           <h3>{data.totalUsers || 0}</h3>
                         </div>
                     </div>
 
                     <div className="col-md-3">
                         <div className="card shadow-sm p-3 text-center">
                             <h6>Managers</h6>
-                            <h3 className="text-primary">{data.totalManagers}</h3>
+                            <h3 className="text-primary">{data.totalManagers || 0}</h3>
                         </div>
                     </div>
 
                     <div className="col-md-3">
                         <div className="card shadow-sm p-3 text-center">
                             <h6>Employees</h6>
-                            <h3 className="text-success">{data.totalEmployees}</h3>
+                            <h3 className="text-success">{data.totalEmployees || 0}</h3>
                         </div>
                     </div>
 
                     <div className="col-md-3">
                         <div className="card shadow-sm p-3 text-center">
                             <h6>Inactive Users</h6>
-                            <h3 className="text-danger">{data.inactiveUsers}</h3>
+                            <h3 className="text-danger">{data.inactiveUsers || 0}</h3>
                         </div>
                     </div>
                 </div>
@@ -44,12 +44,12 @@ function DashboardCards({ data, role }) {
 
             {/* TASK STATS — For Everyone */}
             <div className="row g-4">
-                <StatCard title="Total Tasks" value={data.totalTasks} />
-                <StatCard title="Pending" value={data.pending} color="text-warning" />
-                <StatCard title="In Progress" value={data.inProgress} color="text-primary" />
-                <StatCard title="Submitted" value={data.submitted} color="text-info" />
-                <StatCard title="Approved" value={data.approved} color="text-success" />
-                <StatCard title="Rejected" value={data.rejected} color="text-danger" />
+                <StatCard title="Total Tasks" value={data.totalTasks || 0} />
+                <StatCard title="Pending" value={data.pending || 0} color="text-warning" />
+                <StatCard title="In Progress" value={data.inProgress || 0} color="text-primary" />
+                <StatCard title="Submitted" value={data.submitted || 0} color="text-info" />
+                <StatCard title="Approved" value={data.approved || 0} color="text-success" />
+                <StatCard title="Rejected" value={data.rejected || 0} color="text-danger" />
             </div>
         </div>
     );

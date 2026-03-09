@@ -12,16 +12,23 @@ function AdminUsers() {
         role: "ROLE_EMPLOYEE",
         managerId: ""
     });
+
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
     const currentEmail = localStorage.getItem("email");
+
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedManager, setSelectedManager] = useState(null);
     const [managerEmployees, setManagerEmployees] = useState([]);
     const [newManagerId, setNewManagerId] = useState("");
+
+    const getRoleName = (user) =>
+        typeof user.role === "string" ? user.role : user.role?.name;
+
     // ================= FETCH USERS =================
     const fetchUsers = async () => {
         try {
-            const response = await fetch("http://localhost:8080/admin/users", {
+            const response = await fetch(`${API}/admin/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -30,6 +37,7 @@ function AdminUsers() {
             if (!response.ok) throw new Error("Failed to fetch users");
 
             const data = await response.json();
+            console.log("Fetched users:", data);
             setUsers(data);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -47,54 +55,60 @@ function AdminUsers() {
     );
 
     const managers = filteredUsers.filter(
-        (user) => user.role?.name === "ROLE_MANAGER"
+        (user) => getRoleName(user) === "ROLE_MANAGER"
     );
 
     const employees = filteredUsers.filter(
-        (user) => user.role?.name === "ROLE_EMPLOYEE"
+        (user) => getRoleName(user) === "ROLE_EMPLOYEE"
     );
 
     // ================= TOGGLE STATUS =================
     const toggleUserStatus = async (userId) => {
         try {
-            const response = await fetch(
-                `http://localhost:8080/admin/users/${userId}/toggle`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await fetch(`${API}/admin/users/${userId}/toggle`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             if (!response.ok) throw new Error("Failed to update user");
 
             await fetchUsers();
         } catch (error) {
             console.error("Error updating user:", error);
+            alert("Failed to update user");
         }
     };
 
+    // ================= CREATE USER =================
     const handleCreateUser = async () => {
         try {
+            if (!newUser.name || !newUser.email || !newUser.password) {
+                alert("Please fill all required fields");
+                return;
+            }
 
-            const roleId =
-                newUser.role === "ROLE_MANAGER"
-                    ? 1
-                    : 2;
+            if (newUser.role === "ROLE_EMPLOYEE" && !newUser.managerId) {
+                alert("Please select a manager for the employee");
+                return;
+            }
+
+            const roleId = newUser.role === "ROLE_MANAGER" ? 2 : 3;
 
             const body = {
                 name: newUser.name,
                 email: newUser.email,
                 password: newUser.password,
-                roleId: roleId,
-                managerId:
-                    newUser.role === "ROLE_EMPLOYEE"
-                        ? newUser.managerId
-                        : null,
+                roleId,
+                managerId: newUser.role === "ROLE_EMPLOYEE"
+                    ? Number(newUser.managerId)
+                    : null,
             };
 
-            const response = await fetch("http://localhost:8080/admin/users", {
+            console.log("Creating user with body:", body);
+
+            const response = await fetch(`${API}/admin/users`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -104,7 +118,18 @@ function AdminUsers() {
             });
 
             if (!response.ok) {
-                alert("Failed to create user");
+                let errorMessage = "Failed to create user";
+                try {
+                    const errData = await response.json();
+                    errorMessage = errData.message || errData.error || JSON.stringify(errData);
+                } catch {
+                    try {
+                        errorMessage = await response.text();
+                    } catch {
+                        errorMessage = "Failed to create user";
+                    }
+                }
+                alert(errorMessage);
                 return;
             }
 
@@ -118,33 +143,44 @@ function AdminUsers() {
                 managerId: ""
             });
 
-            fetchUsers();
-
+            await fetchUsers();
         } catch (error) {
-            console.error(error);
+            console.error("Create user error:", error);
+            alert("Something went wrong while creating user");
         }
     };
 
+    // ================= REASSIGN MANAGER =================
     const confirmReassignment = async () => {
-
         if (!newManagerId) {
             alert("Please select a new manager");
             return;
         }
 
-        await fetch(
-            `http://localhost:8080/users/deactivate-manager?managerId=${selectedManager.id}&newManagerId=${newManagerId}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+        try {
+            const response = await fetch(
+                `${API}/users/deactivate-manager?managerId=${selectedManager.id}&newManagerId=${newManagerId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-        setShowReassignModal(false);
-        setNewManagerId("");
-        fetchUsers(); // refresh list
+            if (!response.ok) {
+                alert("Failed to reassign employees and deactivate manager");
+                return;
+            }
+
+            setShowReassignModal(false);
+            setNewManagerId("");
+            setSelectedManager(null);
+            await fetchUsers();
+        } catch (error) {
+            console.error("Reassignment error:", error);
+            alert("Error during reassignment");
+        }
     };
 
     const confirmToggle = async () => {
@@ -190,7 +226,10 @@ function AdminUsers() {
             </div>
 
             {showReassignModal && (
-                <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <div
+                    className="modal fade show d-block"
+                    style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+                >
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content shadow">
                             <div className="modal-header">
@@ -204,7 +243,6 @@ function AdminUsers() {
                             </div>
 
                             <div className="modal-body">
-
                                 <p>
                                     You are about to deactivate:
                                     <strong> {selectedManager?.name}</strong>
@@ -215,14 +253,12 @@ function AdminUsers() {
                                 <h6>Affected Employees ({managerEmployees.length})</h6>
 
                                 <ul className="mb-3">
-                                    {managerEmployees.map(emp => (
+                                    {managerEmployees.map((emp) => (
                                         <li key={emp.id}>{emp.name}</li>
                                     ))}
                                 </ul>
 
-                                <label className="form-label">
-                                    Select New Manager
-                                </label>
+                                <label className="form-label">Select New Manager</label>
 
                                 <select
                                     className="form-select"
@@ -231,14 +267,13 @@ function AdminUsers() {
                                 >
                                     <option value="">Choose Manager</option>
                                     {managers
-                                        .filter(m => m.id !== selectedManager?.id && m.active)
-                                        .map(m => (
+                                        .filter((m) => m.id !== selectedManager?.id && m.active)
+                                        .map((m) => (
                                             <option key={m.id} value={m.id}>
                                                 {m.name}
                                             </option>
                                         ))}
                                 </select>
-
                             </div>
 
                             <div className="modal-footer">
@@ -261,7 +296,6 @@ function AdminUsers() {
                 </div>
             )}
 
-            {/* ================= MODAL ================= */}
             {showModal && (
                 <div
                     className="modal fade show d-block"
@@ -311,11 +345,7 @@ function AdminUsers() {
                                 </button>
 
                                 <button
-                                    className={`btn ${
-                                        selectedUser?.active
-                                            ? "btn-danger"
-                                            : "btn-success"
-                                    }`}
+                                    className={`btn ${selectedUser?.active ? "btn-danger" : "btn-success"}`}
                                     onClick={confirmToggle}
                                 >
                                     Confirm
@@ -326,15 +356,13 @@ function AdminUsers() {
                 </div>
             )}
 
-            {/* ================= MAIN CONTENT ================= */}
             <div className="container-fluid">
                 <div className="card shadow-sm p-4">
-
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h2 className="mb-0">User Management</h2>
                             <span className="text-muted">
-                                Total Users: {users.length}
+                                Total Users: {managers.length + employees.length}
                             </span>
                         </div>
 
@@ -392,7 +420,7 @@ function AdminUsers() {
                                     className="form-select"
                                     value={newUser.role}
                                     onChange={(e) =>
-                                        setNewUser({ ...newUser, role: e.target.value })
+                                        setNewUser({ ...newUser, role: e.target.value, managerId: "" })
                                     }
                                 >
                                     <option value="ROLE_MANAGER">Manager</option>
@@ -410,11 +438,13 @@ function AdminUsers() {
                                         }
                                     >
                                         <option value="">Select Manager</option>
-                                        {managers.map((m) => (
-                                            <option key={m.id} value={m.id}>
-                                                {m.name}
-                                            </option>
-                                        ))}
+                                        {managers
+                                            .filter((m) => m.active)
+                                            .map((m) => (
+                                                <option key={m.id} value={m.id}>
+                                                    {m.name}
+                                                </option>
+                                            ))}
                                     </select>
                                 </div>
                             )}
@@ -430,137 +460,121 @@ function AdminUsers() {
                         </div>
                     </div>
 
-
-                    {/* ================= MANAGERS ================= */}
                     <h4 className="mt-3">Managers ({managers.length})</h4>
                     <div className="card shadow-sm p-3 mb-4">
                         <table className="table table-hover align-middle">
                             <thead className="table-primary">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th className="text-center">Action</th>
-                            </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th className="text-center">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {managers.length > 0 ? (
-                                managers.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
-                                        <td>
-                        <span className={`badge ${user.active ? "bg-success" : "bg-danger"}`}>
-                            {user.active ? "Active" : "Inactive"}
-                        </span>
-                                        </td>
-                                        <td className="text-center">
-                                            <button
-                                                disabled={user.email === currentEmail}
-                                                className={`btn btn-sm ${
-                                                    user.active
-                                                        ? "btn-outline-danger"
-                                                        : "btn-outline-success"
-                                                }`}
-                                                onClick={async () => {
+                                {managers.length > 0 ? (
+                                    managers.map((user) => (
+                                        <tr key={user.id}>
+                                            <td>{user.name}</td>
+                                            <td>{user.email}</td>
+                                            <td>
+                                                <span className={`badge ${user.active ? "bg-success" : "bg-danger"}`}>
+                                                    {user.active ? "Active" : "Inactive"}
+                                                </span>
+                                            </td>
+                                            <td className="text-center">
+                                                <button
+                                                    disabled={user.email === currentEmail}
+                                                    className={`btn btn-sm ${user.active ? "btn-outline-danger" : "btn-outline-success"}`}
+                                                    onClick={async () => {
+                                                        if (!user.active) {
+                                                            setSelectedUser(user);
+                                                            setShowModal(true);
+                                                            return;
+                                                        }
 
-                                                    // If activating → normal flow
-                                                    if (!user.active) {
-                                                        setSelectedUser(user);
-                                                        setShowModal(true);
-                                                        return;
-                                                    }
+                                                        setSelectedManager(user);
 
-                                                    // If deactivating → open reassignment modal
-                                                    setSelectedManager(user);
+                                                        try {
+                                                            const res = await fetch(
+                                                                `${API}/users/manager/${user.id}/employees`,
+                                                                {
+                                                                    headers: {
+                                                                        Authorization: `Bearer ${token}`,
+                                                                    },
+                                                                }
+                                                            );
 
-                                                    try {
-                                                        const res = await fetch(
-                                                            `http://localhost:8080/users/manager/${user.id}/employees`,
-                                                            {
-                                                                headers: {
-                                                                    Authorization: `Bearer ${token}`,
-                                                                },
-                                                            }
-                                                        );
-
-                                                        const data = await res.json();
-                                                        setManagerEmployees(data);
-                                                        setShowReassignModal(true);
-
-                                                    } catch (err) {
-                                                        console.error("Error fetching employees:", err);
-                                                    }
-                                                }}
-                                            >
-                                                {user.active ? "Deactivate" : "Activate"}
-                                            </button>
+                                                            const data = await res.json();
+                                                            setManagerEmployees(data);
+                                                            setShowReassignModal(true);
+                                                        } catch (err) {
+                                                            console.error("Error fetching employees:", err);
+                                                        }
+                                                    }}
+                                                >
+                                                    {user.active ? "Deactivate" : "Activate"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="text-center text-muted">
+                                            No managers found
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="text-center text-muted">
-                                        No managers found
-                                    </td>
-                                </tr>
-                            )}
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {/* ================= EMPLOYEES ================= */}
                     <h4>Employees ({employees.length})</h4>
                     <div className="card shadow-sm p-3">
                         <table className="table table-hover align-middle">
                             <thead className="table-success">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th className="text-center">Action</th>
-                            </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th className="text-center">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {employees.length > 0 ? (
-                                employees.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
-                                        <td>
+                                {employees.length > 0 ? (
+                                    employees.map((user) => (
+                                        <tr key={user.id}>
+                                            <td>{user.name}</td>
+                                            <td>{user.email}</td>
+                                            <td>
                                                 <span className={`badge ${user.active ? "bg-success" : "bg-danger"}`}>
                                                     {user.active ? "Active" : "Inactive"}
                                                 </span>
-                                        </td>
-                                        <td className="text-center">
-                                            <button
-                                                disabled={user.email === currentEmail}
-                                                className={`btn btn-sm ${
-                                                    user.active
-                                                        ? "btn-outline-danger"
-                                                        : "btn-outline-success"
-                                                }`}
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setShowModal(true);
-                                                }}
-                                            >
-                                                {user.active ? "Deactivate" : "Activate"}
-                                            </button>
+                                            </td>
+                                            <td className="text-center">
+                                                <button
+                                                    disabled={user.email === currentEmail}
+                                                    className={`btn btn-sm ${user.active ? "btn-outline-danger" : "btn-outline-success"}`}
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setShowModal(true);
+                                                    }}
+                                                >
+                                                    {user.active ? "Deactivate" : "Activate"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="text-center text-muted">
+                                            No employees found
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="text-center text-muted">
-                                        No employees found
-                                    </td>
-                                </tr>
-                            )}
+                                )}
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </>

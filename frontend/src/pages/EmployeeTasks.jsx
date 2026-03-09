@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 function EmployeeTasks() {
     const [tasks, setTasks] = useState([]);
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     const [activeSubmitTaskId, setActiveSubmitTaskId] = useState(null);
     const [submissionLink, setSubmissionLink] = useState("");
 
     const fetchTasks = async () => {
-        const response = await fetch("http://localhost:8080/tasks/my-tasks", {
+        const response = await fetch(`${API}/tasks/my-tasks`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -24,7 +24,7 @@ function EmployeeTasks() {
 
     const updateStatus = async (taskId, status) => {
         await fetch(
-            `http://localhost:8080/tasks/${taskId}/status?status=${status}`,
+            `${API}/tasks/${taskId}/status?status=${status}`,
             {
                 method: "PUT",
                 headers: {
@@ -42,7 +42,7 @@ function EmployeeTasks() {
             return;
         }
 
-        await fetch(`http://localhost:8080/tasks/${taskId}/submit`, {
+        await fetch(`${API}/tasks/${taskId}/submit`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -75,45 +75,43 @@ function EmployeeTasks() {
                     </thead>
 
                     <tbody>
-                    {tasks.map((task) => (
-                        <>
+                   {tasks.map((task) => (
+                       <React.Fragment key={task.id}>
                             <tr key={task.id}>
                                 <td>{task.title}</td>
 
                                 <td>{task.deadline}</td>
 
-                                {/* PRIORITY BADGE */}
                                 <td>
-                                        <span
-                                            className={`badge ${
-                                                task.priority === "HIGH"
-                                                    ? "bg-danger"
-                                                    : task.priority === "MEDIUM"
-                                                        ? "bg-warning text-dark"
-                                                        : "bg-success"
-                                            }`}
-                                        >
-                                            {task.priority}
-                                        </span>
+                                    <span
+                                        className={`badge ${
+                                            task.priority === "HIGH"
+                                                ? "bg-danger"
+                                                : task.priority === "MEDIUM"
+                                                ? "bg-warning text-dark"
+                                                : "bg-success"
+                                        }`}
+                                    >
+                                        {task.priority}
+                                    </span>
                                 </td>
 
-                                {/* STATUS BADGE (NEW UI) */}
                                 <td>
-                                        <span
-                                            className={`badge ${
-                                                task.status === "APPROVED"
-                                                    ? "bg-success"
-                                                    : task.status === "REJECTED"
-                                                        ? "bg-danger"
-                                                        : task.status === "IN_PROGRESS"
-                                                            ? "bg-primary"
-                                                            : task.status === "SUBMITTED"
-                                                                ? "bg-info"
-                                                                : "bg-secondary"
-                                            }`}
-                                        >
-                                            {task.status}
-                                        </span>
+                                    <span
+                                        className={`badge ${
+                                            task.status === "APPROVED"
+                                                ? "bg-success"
+                                                : task.status === "REJECTED"
+                                                ? "bg-danger"
+                                                : task.status === "IN_PROGRESS"
+                                                ? "bg-primary"
+                                                : task.status === "SUBMITTED"
+                                                ? "bg-info"
+                                                : "bg-secondary"
+                                        }`}
+                                    >
+                                        {task.status}
+                                    </span>
 
                                     {task.managerFeedback && (
                                         <div
@@ -121,8 +119,8 @@ function EmployeeTasks() {
                                                 task.status === "APPROVED"
                                                     ? "text-success"
                                                     : task.status === "REJECTED"
-                                                        ? "text-danger"
-                                                        : ""
+                                                    ? "text-danger"
+                                                    : ""
                                             }`}
                                         >
                                             Feedback: {task.managerFeedback}
@@ -163,7 +161,6 @@ function EmployeeTasks() {
                                 </td>
                             </tr>
 
-                            {/* INLINE SUBMISSION SECTION */}
                             {activeSubmitTaskId === task.id && (
                                 <tr>
                                     <td colSpan="5">
@@ -197,7 +194,7 @@ function EmployeeTasks() {
                                     </td>
                                 </tr>
                             )}
-                        </>
+                            </React.Fragment>
                     ))}
                     </tbody>
                 </table>

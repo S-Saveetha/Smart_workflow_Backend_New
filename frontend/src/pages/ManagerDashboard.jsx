@@ -24,16 +24,17 @@ function ManagerDashboard() {
 
     const [data, setData] = useState({});
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
-        fetch("http://localhost:8080/dashboard/manager", {
+        fetch(`${API}/dashboard/manager`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         })
             .then(res => res.json())
             .then(setData);
-    }, [token]);   // ✅ include token
+    }, [token]);
 
     const chartData = {
         labels: ["Pending", "In Progress", "Submitted", "Approved", "Rejected"],
@@ -81,6 +82,7 @@ function ManagerDashboard() {
                     </div>
                 </div>
             </div>
+
             <div className="card shadow-sm p-4 mt-4">
                 <h5>Task Distribution</h5>
                 <div style={{ maxWidth: "400px" }}>

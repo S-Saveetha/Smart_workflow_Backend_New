@@ -6,16 +6,25 @@ function AdminDashboard() {
     const token = localStorage.getItem("token");
 
     useEffect(() => {
-        fetch("http://localhost:8080/dashboard", {
+        fetch(`${import.meta.env.VITE_API_URL}/dashboard`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         })
-            .then(res => res.json())
-            .then(setData);
-    }, []);
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Failed to fetch dashboard data");
+                }
+                return res.json();
+            })
+            .then(data => setData(data))
+            .catch(err => {
+                console.error("Dashboard error:", err);
+                setData({});
+            });
+    }, [token]);
 
-    if (!data) return <p>Loading...</p>;
+    if (!data) return <p className="p-4">Loading dashboard...</p>;
 
     return <DashboardCards data={data} role="ROLE_ADMIN" />;
 }

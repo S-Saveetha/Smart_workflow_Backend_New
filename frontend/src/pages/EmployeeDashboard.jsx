@@ -4,9 +4,10 @@ import DashboardCards from "../Components/DashboardCards";
 function EmployeeDashboard() {
     const [data, setData] = useState(null);
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
-        fetch("http://localhost:8080/dashboard", {
+        fetch(`${API}/dashboard`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

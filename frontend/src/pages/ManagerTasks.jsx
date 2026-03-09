@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 function ManagerTasks() {
 
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     const [tasks, setTasks] = useState([]);
     const [employees, setEmployees] = useState([]);
@@ -20,7 +21,7 @@ function ManagerTasks() {
     // ================= FETCH TASKS =================
     const fetchTasks = async () => {
         try {
-            const response = await fetch("http://localhost:8080/tasks/manager", {
+            const response = await fetch(`${API}/tasks/manager`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -31,16 +32,14 @@ function ManagerTasks() {
         }
     };
 
-
     // ================= FETCH EMPLOYEES =================
     const fetchEmployees = async () => {
         try {
-            const response = await fetch("http://localhost:8080/users/my-employees", {
+            const response = await fetch(`${API}/users/my-employees`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await response.json();
-
             setEmployees(data);
         } catch (error) {
             console.error("Error fetching employees:", error);
@@ -60,7 +59,7 @@ function ManagerTasks() {
         }
 
         try {
-            await fetch("http://localhost:8080/tasks", {
+            await fetch(`${API}/tasks`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -75,7 +74,6 @@ function ManagerTasks() {
                 }),
             });
 
-            // Reset form
             setTitle("");
             setDescription("");
             setDeadline("");
@@ -94,7 +92,7 @@ function ManagerTasks() {
             return;
         }
 
-        await fetch(`http://localhost:8080/tasks/${selectedTaskId}/review`, {
+        await fetch(`${API}/tasks/${selectedTaskId}/review`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -122,7 +120,7 @@ function ManagerTasks() {
         if (!feedback) return;
 
         try {
-            await fetch(`http://localhost:8080/tasks/${taskId}/review`, {
+            await fetch(`${API}/tasks/${taskId}/review`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -144,7 +142,6 @@ function ManagerTasks() {
         <div className="container-fluid">
             <h2 className="mb-4">My Created Tasks</h2>
 
-            {/* ================= CREATE TASK FORM ================= */}
             <div className="card shadow-sm p-3 mb-4">
                 <h5>Create Task</h5>
 
@@ -222,7 +219,6 @@ function ManagerTasks() {
                 </div>
             </div>
 
-            {/* ================= TASK TABLE ================= */}
             <div className="card shadow-sm p-3">
                 <table className="table table-hover">
                     <thead className="table-dark">
@@ -242,35 +238,35 @@ function ManagerTasks() {
                             <td>{task.assignedEmployee?.name}</td>
 
                             <td>
-                                    <span
-                                        className={`badge ${
-                                            task.priority === "HIGH"
-                                                ? "bg-danger"
-                                                : task.priority === "MEDIUM"
-                                                    ? "bg-warning text-dark"
-                                                    : "bg-success"
-                                        }`}
-                                    >
-                                        {task.priority}
-                                    </span>
+                                <span
+                                    className={`badge ${
+                                        task.priority === "HIGH"
+                                            ? "bg-danger"
+                                            : task.priority === "MEDIUM"
+                                            ? "bg-warning text-dark"
+                                            : "bg-success"
+                                    }`}
+                                >
+                                    {task.priority}
+                                </span>
                             </td>
 
                             <td>
-    <span
-        className={`badge ${
-            task.status === "APPROVED"
-                ? "bg-success"
-                : task.status === "REJECTED"
-                    ? "bg-danger"
-                    : task.status === "IN_PROGRESS"
-                        ? "bg-primary"
-                        : task.status === "SUBMITTED"
-                            ? "bg-info"
-                            : "bg-secondary"
-        }`}
-    >
-        {task.status}
-    </span>
+                                <span
+                                    className={`badge ${
+                                        task.status === "APPROVED"
+                                            ? "bg-success"
+                                            : task.status === "REJECTED"
+                                            ? "bg-danger"
+                                            : task.status === "IN_PROGRESS"
+                                            ? "bg-primary"
+                                            : task.status === "SUBMITTED"
+                                            ? "bg-info"
+                                            : "bg-secondary"
+                                    }`}
+                                >
+                                    {task.status}
+                                </span>
                             </td>
 
                             <td>
@@ -309,8 +305,8 @@ function ManagerTasks() {
                                     </>
                                 ) : (
                                     <span className="text-muted">
-                                            No Actions
-                                        </span>
+                                        No Actions
+                                    </span>
                                 )}
                             </td>
                         </tr>
@@ -340,13 +336,13 @@ function ManagerTasks() {
                             </div>
 
                             <div className="modal-body">
-                    <textarea
-                        className="form-control"
-                        rows="4"
-                        placeholder="Enter feedback..."
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                    />
+                                <textarea
+                                    className="form-control"
+                                    rows="4"
+                                    placeholder="Enter feedback..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                />
                             </div>
 
                             <div className="modal-footer">

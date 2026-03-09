@@ -22,15 +22,16 @@ ChartJS.register(
 function AdminPerformance() {
 
     const token = localStorage.getItem("token");
+    const API = import.meta.env.VITE_API_URL;
 
     const [data, setData] = useState([]);
     const [managers, setManagers] = useState([]);
 
-    // Fetch managers list
+    // ================= FETCH MANAGERS =================
     const fetchManagers = async () => {
         try {
             const response = await fetch(
-                "http://localhost:8080/users/managers",
+                `${API}/users/managers`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -46,11 +47,11 @@ function AdminPerformance() {
         }
     };
 
-    // Fetch performance of employees under selected manager
+    // ================= FETCH PERFORMANCE =================
     const fetchManagerPerformance = async (managerId) => {
         try {
             const response = await fetch(
-                `http://localhost:8080/performance/manager/${managerId}`,
+                `${API}/performance/manager/${managerId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -66,11 +67,12 @@ function AdminPerformance() {
         }
     };
 
-    // Load managers when page opens
+    // ================= LOAD MANAGERS =================
     useEffect(() => {
         fetchManagers();
     }, []);
 
+    // ================= CHART DATA =================
     const chartData = useMemo(() => ({
         labels: data.map((user) => user.name),
         datasets: [
@@ -81,8 +83,8 @@ function AdminPerformance() {
                     user.performancePercentage >= 70
                         ? "rgba(40,167,69,0.7)"
                         : user.performancePercentage >= 40
-                            ? "rgba(255,193,7,0.7)"
-                            : "rgba(220,53,69,0.7)"
+                        ? "rgba(255,193,7,0.7)"
+                        : "rgba(220,53,69,0.7)"
                 ),
             },
         ],
@@ -91,7 +93,7 @@ function AdminPerformance() {
     return (
         <div className="container-fluid">
 
-            {/* MANAGERS LIST */}
+            {/* ================= MANAGERS LIST ================= */}
 
             <div className="card shadow-sm p-4 mb-4">
 
@@ -137,7 +139,7 @@ function AdminPerformance() {
 
             </div>
 
-            {/* PERFORMANCE SECTION */}
+            {/* ================= PERFORMANCE SECTION ================= */}
 
             {data.length > 0 && (
 
@@ -145,7 +147,8 @@ function AdminPerformance() {
 
                     <h3 className="mb-4">Team Performance</h3>
 
-                    <div style={{ height: "350px" }}>
+                    <div style={{
+                        height: "350px" }}>
                         <Bar
                             data={chartData}
                             options={{
@@ -198,17 +201,17 @@ function AdminPerformance() {
 
                                 <td>
 
-                                        <span
-                                            className={`badge ${
-                                                user.performancePercentage >= 80
-                                                    ? "bg-success"
-                                                    : user.performancePercentage >= 50
-                                                        ? "bg-warning text-dark"
-                                                        : "bg-danger"
-                                            }`}
-                                        >
-                                            {user.performancePercentage.toFixed(1)}%
-                                        </span>
+                                    <span
+                                        className={`badge ${
+                                            user.performancePercentage >= 80
+                                                ? "bg-success"
+                                                : user.performancePercentage >= 50
+                                                ? "bg-warning text-dark"
+                                                : "bg-danger"
+                                        }`}
+                                    >
+                                        {user.performancePercentage.toFixed(1)}%
+                                    </span>
 
                                 </td>
 

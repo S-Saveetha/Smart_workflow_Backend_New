@@ -9,7 +9,7 @@ import {
     FaBars
 } from "react-icons/fa";
 
-const Sidebar = ({ role }) => {
+const Sidebar = ({ role, onLogout }) => {
     const [collapsed, setCollapsed] = useState(false);
 
     return (
@@ -17,11 +17,10 @@ const Sidebar = ({ role }) => {
             className="d-flex flex-column text-white p-3 position-fixed"
             style={{
                 width: collapsed ? "80px" : "250px",
-                height: "100vh",
+                minHeight: "100vh",
                 background: "linear-gradient(180deg, #111827, #1f2937)",
                 transition: "0.3s ease",
-                boxShadow: "2px 0 10px rgba(0,0,0,0.2)",
-                overflowY: "auto"
+                boxShadow: "2px 0 10px rgba(0,0,0,0.2)"
             }}
         >
             {/* TOGGLE */}
@@ -154,11 +153,8 @@ const Sidebar = ({ role }) => {
             <div className="mt-auto">
                 <hr className="border-secondary" />
                 <button
-                    className="btn btn-danger w-100 d-flex align-items-center justify-content-center"
-                    onClick={() => {
-                        localStorage.clear();
-                        window.location.href = "/";
-                    }}
+                    className="btn btn-outline-light w-100 d-flex align-items-center"
+                    onClick={onLogout}
                 >
                     <FaSignOutAlt />
                     {!collapsed && <span className="ms-2">Logout</span>}

@@ -7,6 +7,7 @@ function Profile() {
     const email = localStorage.getItem("email");
     const role = localStorage.getItem("role");
     const name = localStorage.getItem("name");
+    const API = import.meta.env.VITE_API_URL;
 
     const [showPasswordForm, setShowPasswordForm] = useState(false);
 
@@ -29,7 +30,7 @@ function Profile() {
         try {
 
             const response = await fetch(
-                "http://localhost:8080/users/change-password",
+                `${API}/users/change-password`,
                 {
                     method: "PUT",
                     headers: {
@@ -63,7 +64,6 @@ function Profile() {
 
             <div className="card shadow-sm p-4" style={{ maxWidth: "600px" }}>
 
-                {/* USER HEADER */}
                 <div className="text-center mb-4">
                     <FaUserCircle size={70} color="#4e73df" />
                     <h4 className="mt-2">{name}</h4>
@@ -75,7 +75,6 @@ function Profile() {
 
                 <hr />
 
-                {/* ACCOUNT INFO */}
                 <h5 className="mb-3">Account Information</h5>
 
                 <p><strong>Name:</strong> {name}</p>
@@ -84,7 +83,6 @@ function Profile() {
 
                 <hr />
 
-                {/* CHANGE PASSWORD BUTTON */}
                 {!showPasswordForm && (
                     <button
                         className="btn btn-outline-primary"
@@ -95,7 +93,6 @@ function Profile() {
                     </button>
                 )}
 
-                {/* PASSWORD FORM */}
                 {showPasswordForm && (
                     <>
                         <h5 className="mt-3 mb-3">Change Password</h5>
