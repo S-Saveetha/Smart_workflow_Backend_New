@@ -1,6 +1,5 @@
 package com.smartworkflow.backend.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -8,6 +7,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
+
 @Configuration
 public class CorsConfig {
 
@@ -16,7 +16,10 @@ public class CorsConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(List.of(
+                "https://smart-workflow-performance-tool.vercel.app",
+                "http://localhost:5173"
+        ));
 
         configuration.setAllowedMethods(List.of(
                 "GET","POST","PUT","DELETE","OPTIONS"
