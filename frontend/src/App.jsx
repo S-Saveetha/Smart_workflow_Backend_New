@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 function App() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loginError, setLoginError] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(
         localStorage.getItem("token") !== null
     );
@@ -24,6 +25,8 @@ function App() {
     // ================= LOGIN =================
     const handleLogin = async () => {
         try {
+            setLoginError("");
+
             const response = await fetch(`${import.meta.env.VITE_API_URL}/users/login`, {
                 method: "POST",
                 headers: {
@@ -34,7 +37,16 @@ function App() {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                alert(errorText);
+
+                if (errorText === "INVALID_PASSWORD") {
+                    setLoginError("Invalid password");
+                } else if (errorText === "User not found") {
+                    setLoginError("Invalid email");
+                } else if (errorText === "ACCOUNT_DEACTIVATED") {
+                    setLoginError("Account is deactivated");
+                } else {
+                    setLoginError(errorText);
+                }
                 return;
             }
 
@@ -45,10 +57,10 @@ function App() {
             localStorage.setItem("email", data.email);
             localStorage.setItem("name", data.name);
 
-
             setIsLoggedIn(true);
         } catch (error) {
             console.error("Login.jsx Error:", error);
+            setLoginError("Something went wrong. Please try again.");
         }
     };
 
@@ -87,21 +99,29 @@ function App() {
                                 type="email"
                                 className="form-control"
                                 placeholder="Enter your email"
+                                autoComplete="username"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
 
-                        <div className="mb-4">
+                        <div className="mb-3">
                             <label className="form-label fw-semibold">Password</label>
                             <input
                                 type="password"
                                 className="form-control"
                                 placeholder="Enter your password"
+                                autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
+
+                        {loginError && (
+                            <div className="alert alert-danger py-2 text-center">
+                                {loginError}
+                            </div>
+                        )}
 
                         <button
                             className="btn btn-primary w-100 fw-semibold"

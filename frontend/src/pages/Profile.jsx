@@ -14,16 +14,20 @@ function Profile() {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("");
 
     const changePassword = async () => {
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            alert("Please fill all fields");
+            setMessage("Please fill all fields");
+            setMessageType("danger");
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("Passwords do not match");
+            setMessage("Passwords do not match");
+            setMessageType("danger");
             return;
         }
 
@@ -44,8 +48,16 @@ function Profile() {
                 }
             );
 
-            const message = await response.text();
-            alert(message);
+            const responseMessage = await response.text();
+
+            if (!response.ok) {
+                setMessage(responseMessage);
+                setMessageType("danger");
+                return;
+            }
+
+            setMessage("Password updated successfully");
+            setMessageType("success");
 
             setCurrentPassword("");
             setNewPassword("");
@@ -54,6 +66,8 @@ function Profile() {
 
         } catch (error) {
             console.error(error);
+            setMessage("Something went wrong");
+            setMessageType("danger");
         }
     };
 
@@ -83,10 +97,19 @@ function Profile() {
 
                 <hr />
 
+                {message && (
+                    <div className={`alert alert-${messageType}`} role="alert">
+                        {message}
+                    </div>
+                )}
+
                 {!showPasswordForm && (
                     <button
                         className="btn btn-outline-primary"
-                        onClick={() => setShowPasswordForm(true)}
+                        onClick={() => {
+                            setShowPasswordForm(true);
+                            setMessage("");
+                        }}
                     >
                         <FaKey className="me-2"/>
                         Change Password
@@ -102,6 +125,7 @@ function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
+                                autoComplete="current-password"
                                 value={currentPassword}
                                 onChange={(e) => setCurrentPassword(e.target.value)}
                             />
@@ -112,6 +136,7 @@ function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
+                                autoComplete="new-password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                             />
@@ -122,6 +147,7 @@ function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
+                                autoComplete="new-password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
@@ -137,7 +163,10 @@ function Profile() {
 
                             <button
                                 className="btn btn-secondary"
-                                onClick={() => setShowPasswordForm(false)}
+                                onClick={() => {
+                                    setShowPasswordForm(false);
+                                    setMessage("");
+                                }}
                             >
                                 Cancel
                             </button>

@@ -12,6 +12,8 @@ function AdminUsers() {
         role: "ROLE_EMPLOYEE",
         managerId: ""
     });
+    const [formMessage, setFormMessage] = useState("");
+    const [formMessageType, setFormMessageType] = useState("");
 
     const token = localStorage.getItem("token");
     const API = import.meta.env.VITE_API_URL;
@@ -84,13 +86,17 @@ function AdminUsers() {
     // ================= CREATE USER =================
     const handleCreateUser = async () => {
         try {
+            setFormMessage("");
+
             if (!newUser.name || !newUser.email || !newUser.password) {
-                alert("Please fill all required fields");
+                setFormMessage("Please fill all required fields");
+                setFormMessageType("danger");
                 return;
             }
 
             if (newUser.role === "ROLE_EMPLOYEE" && !newUser.managerId) {
-                alert("Please select a manager for the employee");
+                setFormMessage("Please select a manager for the employee");
+                setFormMessageType("danger");
                 return;
             }
 
@@ -129,11 +135,13 @@ function AdminUsers() {
                         errorMessage = "Failed to create user";
                     }
                 }
-                alert(errorMessage);
+                setFormMessage(errorMessage);
+                setFormMessageType("danger");
                 return;
             }
 
-            alert("User Created Successfully");
+            setFormMessage("User created successfully");
+            setFormMessageType("success");
 
             setNewUser({
                 name: "",
@@ -146,18 +154,44 @@ function AdminUsers() {
             await fetchUsers();
         } catch (error) {
             console.error("Create user error:", error);
-            alert("Something went wrong while creating user");
+            setFormMessage("Something went wrong while creating user");
+            setFormMessageType("danger");
         }
     };
 
     // ================= REASSIGN MANAGER =================
     const confirmReassignment = async () => {
-        if (!newManagerId) {
-            alert("Please select a new manager");
-            return;
-        }
-
         try {
+            // If manager has no employees, deactivate directly
+            if (managerEmployees.length === 0) {
+                const response = await fetch(
+                    `${API}/admin/users/${selectedManager.id}/toggle`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    alert("Failed to deactivate manager");
+                    return;
+                }
+
+                setShowReassignModal(false);
+                setNewManagerId("");
+                setSelectedManager(null);
+                await fetchUsers();
+                return;
+            }
+
+            // If manager has employees, require reassignment
+            if (!newManagerId) {
+                alert("Please select a new manager");
+                return;
+            }
+
             const response = await fetch(
                 `${API}/users/deactivate-manager?managerId=${selectedManager.id}&newManagerId=${newManagerId}`,
                 {
@@ -380,11 +414,18 @@ function AdminUsers() {
                     <div className="card shadow-sm p-3 mb-4">
                         <h5>Create User</h5>
 
+                        {formMessage && (
+                            <div className={`alert alert-${formMessageType} py-2`} role="alert">
+                                {formMessage}
+                            </div>
+                        )}
+
                         <div className="row g-2">
                             <div className="col">
                                 <input
                                     className="form-control"
                                     placeholder="Name"
+                                    autoComplete="off"
                                     value={newUser.name}
                                     onChange={(e) =>
                                         setNewUser({ ...newUser, name: e.target.value })
@@ -395,7 +436,9 @@ function AdminUsers() {
                             <div className="col">
                                 <input
                                     className="form-control"
+                                    type="email"
                                     placeholder="Email"
+                                    autoComplete="new-email"
                                     value={newUser.email}
                                     onChange={(e) =>
                                         setNewUser({ ...newUser, email: e.target.value })
@@ -408,6 +451,7 @@ function AdminUsers() {
                                     type="password"
                                     className="form-control"
                                     placeholder="Password"
+                                    autoComplete="new-password"
                                     value={newUser.password}
                                     onChange={(e) =>
                                         setNewUser({ ...newUser, password: e.target.value })
