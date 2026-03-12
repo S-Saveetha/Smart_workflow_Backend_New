@@ -72,64 +72,100 @@ function App() {
     // ================= LOGIN PAGE =================
     if (!isLoggedIn) {
         return (
-            <div className="d-flex vh-100">
-
-                {/* LEFT SIDE – Branding */}
+            <div
+                className="d-flex justify-content-center align-items-center min-vh-100"
+                style={{
+                    backgroundColor: "#eef1f7",
+                }}
+            >
                 <div
-                    className="d-flex flex-column justify-content-center align-items-center text-white"
+                    className="card shadow-sm border-0 p-4"
                     style={{
-                        flex: 1,
-                        background: "linear-gradient(135deg, #4e73df, #1cc88a)",
+                        width: "100%",
+                        maxWidth: "500px",
+                        borderRadius: "18px",
+                        backgroundColor: "#ffffff",
                     }}
                 >
-                    <h1 className="fw-bold">Smart Workflow</h1>
-                    <p className="mt-3 text-center px-5">
-                        Enterprise Task & Workforce Management System
-                    </p>
-                </div>
-
-                {/* RIGHT SIDE – Login.jsx Form */}
-                <div className="d-flex justify-content-center align-items-center bg-light" style={{ flex: 1 }}>
-                    <div className="card shadow-lg p-5" style={{ width: "400px", borderRadius: "20px" }}>
-                        <h3 className="text-center mb-4 fw-bold">Login</h3>
-
-                        <div className="mb-3">
-                            <label className="form-label fw-semibold">Email</label>
-                            <input
-                                type="email"
-                                className="form-control"
-                                placeholder="Enter your email"
-                                autoComplete="username"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="mb-3">
-                            <label className="form-label fw-semibold">Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                placeholder="Enter your password"
-                                autoComplete="current-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-
-                        {loginError && (
-                            <div className="alert alert-danger py-2 text-center">
-                                {loginError}
-                            </div>
-                        )}
-
-                        <button
-                            className="btn btn-primary w-100 fw-semibold"
-                            onClick={handleLogin}
+                    <div className="text-center mb-4">
+                        <div
+                            className="d-inline-flex justify-content-center align-items-center mb-3"
+                            style={{
+                                width: "60px",
+                                height: "60px",
+                                borderRadius: "50%",
+                                background: "linear-gradient(135deg, #6f42c1, #8b5cf6)",
+                                color: "white",
+                                fontSize: "28px",
+                                fontWeight: "bold",
+                            }}
                         >
-                            Sign In
-                        </button>
+                            SW
+                        </div>
+
+                        <h3 className="fw-bold mb-2" style={{ color: "#111827" }}>
+                            Smart Workflow
+                        </h3>
+
+                        <p className="mb-0" style={{ color: "#7c3aed", fontWeight: "600" }}>
+                            Welcome Back!
+                        </p>
                     </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold">Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            placeholder="Enter your email"
+                            autoComplete="username"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{
+                                height: "48px",
+                                borderRadius: "10px",
+                                backgroundColor: "#f3f6fb",
+                                border: "1px solid #dbe2ea",
+                            }}
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold">Password</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            placeholder="Enter your password"
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                                height: "48px",
+                                borderRadius: "10px",
+                                backgroundColor: "#f3f6fb",
+                                border: "1px solid #dbe2ea",
+                            }}
+                        />
+                    </div>
+
+                    {loginError && (
+                        <div className="alert alert-danger py-2 text-center">
+                            {loginError}
+                        </div>
+                    )}
+
+                    <button
+                        className="btn w-100 fw-semibold text-white"
+                        onClick={handleLogin}
+                        style={{
+                            height: "48px",
+                            borderRadius: "10px",
+                            background: "linear-gradient(135deg, #6f42c1, #8b5cf6)",
+                            border: "none",
+                        }}
+                    >
+                        Sign In
+                    </button>
                 </div>
             </div>
         );
