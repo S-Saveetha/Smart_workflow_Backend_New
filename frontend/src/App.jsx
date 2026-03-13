@@ -57,6 +57,9 @@ function App() {
             localStorage.setItem("email", data.email);
             localStorage.setItem("name", data.name);
 
+            setEmail("");
+            setPassword("");
+            setLoginError("");
             setIsLoggedIn(true);
         } catch (error) {
             console.error("Login.jsx Error:", error);
@@ -66,6 +69,9 @@ function App() {
 
     const handleLogout = () => {
         localStorage.clear();
+        setEmail("");
+        setPassword("");
+        setLoginError("");
         setIsLoggedIn(false);
     };
 
@@ -104,10 +110,10 @@ function App() {
                         </div>
 
                         <h3 className="fw-bold mb-2" style={{ color: "#111827" }}>
-                            Smart Workflow
+                            Smart Workflow Performance Tool
                         </h3>
 
-                        <p className="mb-0" style={{ color: "#7c3aed", fontWeight: "600" }}>
+                        <p className="mb-1" style={{ color: "#7c3aed", fontWeight: "600" }}>
                             Welcome Back!
                         </p>
                     </div>
